@@ -1,14 +1,15 @@
-#  Documento de Visión
+# 👁️ Documento de Visión — Sistema SIRA
+
+---
 
 ## 2.1. Declaración de Visión
 
-> **Para** el personal médico, administrativo y pacientes de la Clínica San Rafael S.A.C.[cite: 1, 3]  
-> **Que** enfrentan problemas por la fragmentación de registros clínicos, retrasos en la entrega de resultados y una alta tasa de inasistencia a citas[cite: 1, 3],  
-> **El** *Sistema de Información Clínico-Administrativo San Rafael*  
-> **Es una** plataforma web integral de gestión médica y administrativa[cite: 1, 3]  
-> **Que** unifica la historia clínica electrónica, centraliza la programación de citas con recordatorios automáticos, digitaliza órdenes/resultados de laboratorio y automatiza la facturación con aseguradoras[cite: 1, 3].  
-> **A diferencia de** los registros físicos en papel, hojas de cálculo dispersas en Excel y gestión de citas vía telefónica[cite: 1, 3],  
-> **Nuestro producto** proporciona acceso en tiempo real a la información clínica con altos estándares de seguridad (Ley N.° 29733), garantizando continuidad en la atención y eficiencia operativa[cite: 1, 3].
+> **Para** el personal clínico y administrativo de la Clínica San Rafael S.A.C.  
+> **Que** necesita una vista única, oportuna y segura de la información del paciente y de la operación diaria,  
+> **El** **Sistema de Información Clínico-Administrativo (SIRA)**  
+> **Es una** plataforma web integrada  
+> **Que** consolida la historia clínica electrónica, la agenda multiespecialidad, el circuito de laboratorio e imágenes, la facturación por convenios y los reportes gerenciales, con acceso restringido por rol y trazabilidad completa;  
+> **A diferencia de** las historias clínicas en papel y Excel, la agenda telefónica y la conciliación manual con aseguradoras, que fragmentan el expediente del paciente, saturan la atención telefónica, demoran los resultados hasta 48 horas y dejan a la dirección sin indicadores.
 
 ---
 
@@ -16,28 +17,38 @@
 
 | Perfil | Necesidad Principal | Módulo Relacionado |
 | :--- | :--- | :--- |
-| **Admisión / Recepción** | Agendar, reprogramar y confirmar citas de forma rápida; registrar datos del paciente sin duplicados[cite: 1, 3]. | **M2.** Agenda y citas médicas[cite: 1, 3] |
-| **Médico Tratante** | Acceso inmediato a la Historia Clínica Electrónica (HCE) unificada, diagnósticos CIE-10, tratamientos y órdenes de exámenes[cite: 1, 3]. | **M1.** Historia clínica electrónica<br>**M3.** Laboratorio e imágenes[cite: 1, 3] |
-| **Enfermera** | Registrar funciones vitales, evoluciones del paciente y verificar indicaciones médicas en atención o emergencia[cite: 1, 3]. | **M1.** Historia clínica electrónica[cite: 1, 3] |
-| **Personal de Laboratorio / Imágenes** | Recepcionar órdenes médicas digitales, cargar resultados/informes y notificar al médico tratante[cite: 1, 3]. | **M3.** Laboratorio e imágenes[cite: 1, 3] |
-| **Cajero / Facturación** | Generar comprobantes con tarifarios diferenciados (Particular, EPS, SOAT) y gestionar solicitudes de pago / glosas[cite: 1, 3]. | **M4.** Facturación y convenios[cite: 1, 3] |
-| **Gerencia Médica** | Visualizar indicadores en tiempo real sobre ocupación de consultorios, tiempos de espera, ingresos e inasistencias[cite: 1, 3]. | **M5.** Reportes gerenciales[cite: 1, 3] |
-| **Paciente** | Consultar sus citas programadas, recibir recordatorios y acceder a sus resultados médicos de forma segura[cite: 1, 3]. | **M2.** Agenda y citas médicas<br>**M6.** Portal del paciente[cite: 1, 3] |
+| **Admisión / Recepción** | Registrar y localizar al paciente sin duplicar expedientes, verificar su convenio vigente y programar, reprogramar o cancelar citas sobre la disponibilidad consolidada de médicos y consultorios. | **M2** (principal), **M1** |
+| **Médico tratante** | Abrir el expediente completo del paciente antes de la consulta, registrar la atención con diagnóstico CIE-10, indicaciones y receta, y generar órdenes de laboratorio o imágenes. | **M1** (principal), **M3**, **M2** |
+| **Enfermera** | Registrar el triaje y los signos vitales al inicio de la atención y consultar alergias, medicación vigente e indicaciones, sin acceso al expediente clínico completo. | **M1** (acceso restringido por rol) |
+| **Personal de laboratorio** | Recibir la orden médica digital, registrar su ejecución, cargar el resultado y que el sistema notifique automáticamente al médico tratante y al paciente. | **M3** (principal) |
+| **Cajero / Facturación** | Emitir el comprobante aplicando el tarifario del convenio correspondiente, calcular el copago del paciente y registrar y dar seguimiento a las glosas de las EPS. | **M4** (principal) |
+| **Gerencia médica** | Disponer de indicadores de ocupación de consultorios, tiempos de espera, ingresos por especialidad y convenio, e inasistencia, para decidir sobre horarios, personal y convenios. | **M5** (principal) |
+| **Paciente** | Agendar sin esperar en la línea telefónica, recibir confirmación y recordatorio de su cita y consultar sus resultados sin acudir presencialmente. | **M6** (deseable); receptor de notificaciones de **M2** y **M3** |
 
 ---
 
 ## 2.3. Análisis de Factibilidad
 
-### 🔹 Factibilidad Técnica
-* **Viabilidad:** Alta. Se utilizará un stack de desarrollo moderno y maduro con arquitectura multicapa/microservicios (web + API REST)[cite: 1, 3].
-* **Infraestructura:** Despliegue en la nube bajo servicios de costo moderado (PaaS/IaaS), garantizando respuesta menor a 2 segundos en la apertura de historias clínicas sobre un volumen inicial de más de 8,000 pacientes[cite: 1, 3].
-* **Seguridad:** Implementación de autenticación basada en roles (RBAC), encriptación de datos sensibles y registros de bitácoras de auditoría no modificables[cite: 1, 3].
+### 🛠️ Factibilidad Técnica
+**El proyecto es factible.**
+* **Volumen de datos:** El volumen del caso (8,000 pacientes registrados en una sede) es manejable por una base de datos relacional sobre infraestructura modesta, alcanzando el tiempo de apertura del expediente en menos de 2 segundos mediante indexación y paginación estándar.
+* **Tratamiento de puntos críticos:**
+  * **Motor de disponibilidad de la agenda:** Se resuelve con validación de solapamiento a nivel de base de datos.
+  * **Tarifario por convenio:** Se estructura mediante un modelo de relación *Servicio–Convenio–Vigencia*.
+  * **Confidencialidad:** Se garantiza con control de acceso basado en roles (RBAC) y bitácora de auditoría no modificable.
+* **Competencias:** El equipo cuenta con la formación previa en modelado de datos, desarrollo web y control de versiones adquirida en los cursos prerrequisito.
 
-### 🔹 Factibilidad Operativa
-* **Aceptación:** El sistema responde a la necesidad crítica reportada por la dirección médica respecto a errores de medicación, inasistencias (18%) y demoras de facturación[cite: 1, 3].
-* **Usabilidad:** Interfaz minimalista e intuitiva orientada a usuarios con diversos niveles de alfabetización digital[cite: 1, 3].
-* **Capacitación:** Se brindarán guías de usuario diferenciadas por rol (Admisión, Médicos, Caja) facilitando la adopción progresiva[cite: 2].
+### ⚙️ Factibilidad Operativa
+**El proyecto es factible con condiciones.**
+* **Factores a favor:** La propia dirección médica reconoce y reporta los problemas actuales (errores de medicación, demoras de cobranza). El sistema no elimina puestos de trabajo, sino que redistribuye tareas manuales ineficientes.
+* **Factores en contra:** El personal presenta distintos niveles de alfabetización digital y la transición desde el papel es el punto de mayor fricción (Riesgo R-02).
+* **Estrategia de mitigación:** La usabilidad se aborda como un requisito esencial: flujos de pocos pasos, terminología clínica en lugar de técnica y validaciones que previenen el error. Se contempla la entrega de un manual de usuario por rol y una etapa de marcha blanca antes de retirar los registros en papel.
 
-### 🔹 Factibilidad Económica
-* **Costo-Beneficio:** El proyecto reduce directamente las pérdidas por glosas no cobradas a las EPS, optimiza los ingresos por ocupación de consultorios y reduce el Ausentismo (*no-show*)[cite: 1, 3].
-* **Restricción Presupuestal:** Se alinea a la restricción de infraestructura acotada al utilizar servicios en la nube de nivel de entrada/gratuito durante las fases de desarrollo y prueba[cite: 1, 3].
+### 💰 Factibilidad Económica
+**El proyecto es factible.**
+* **Costos:** La infraestructura se limita a servicios en la nube de nivel gratuito o de costo moderado, sin inversión en servidores propios (`EXC-01`, `SR-01`).
+* **Beneficios cuantificables:**
+  * Reducir la inasistencia del 18% recupera capacidad de consulta hoy desperdiciada en 12 consultorios.
+  * Acortar el agendamiento de 20 a menos de 3 minutos libera horas operativas del personal de admisión.
+  * El seguimiento sistemático de glosas reduce la facturación a EPS que hoy se pierde o se cobra con retraso.
+* **Beneficios no cuantificables:** Prevención de errores de medicación y cumplimiento demostrable de la Ley N.° 29733 de Protección de Datos Personales.
