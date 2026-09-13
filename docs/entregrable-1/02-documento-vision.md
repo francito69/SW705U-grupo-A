@@ -31,17 +31,17 @@
 
 ### 🛠️ Factibilidad Técnica
 **El proyecto es factible.**
-* **Volumen de datos:** El volumen del caso (8,000 pacientes registrados en una sede) es manejable por una base de datos relacional sobre infraestructura modesta, alcanzando el tiempo de apertura del expediente en menos de 2 segundos mediante indexación y paginación estándar.
+* **Volumen de datos:** El volumen del caso (8,000 pacientes registrados en una sede) es manejable por una base de datos relacional sobre infraestructura modesta, alcanzando el tiempo de apertura del expediente en menos de 2 segundos mediante indexación y paginación estándar (`OBJ-01`).
 * **Tratamiento de puntos críticos:**
-  * **Motor de disponibilidad de la agenda:** Se resuelve con validación de solapamiento a nivel de base de datos.
-  * **Tarifario por convenio:** Se estructura mediante un modelo de relación *Servicio–Convenio–Vigencia*.
-  * **Confidencialidad:** Se garantiza con control de acceso basado en roles (RBAC) y bitácora de auditoría no modificable.
+  * **Motor de disponibilidad de la agenda:** Se resuelve con validación de solapamiento a nivel de base de datos (`OBJ-02`).
+  * **Tarifario por convenio:** Se estructura mediante un modelo de relación *Servicio–Convenio–Vigencia* (`OBJ-04`).
+  * **Confidencialidad:** Se garantiza con control de acceso basado en roles (RBAC) y bitácora de auditoría no modificable (`R-01`).
 * **Competencias:** El equipo cuenta con la formación previa en modelado de datos, desarrollo web y control de versiones adquirida en los cursos prerrequisito.
 
 ### ⚙️ Factibilidad Operativa
 **El proyecto es factible con condiciones.**
 * **Factores a favor:** La propia dirección médica reconoce y reporta los problemas actuales (errores de medicación, demoras de cobranza). El sistema no elimina puestos de trabajo, sino que redistribuye tareas manuales ineficientes.
-* **Factores en contra:** El personal presenta distintos niveles de alfabetización digital y la transición desde el papel es el punto de mayor fricción (Riesgo R-02).
+* **Factores en contra:** El personal presenta distintos niveles de alfabetización digital y la transición desde el papel es el punto de mayor fricción (`R-02`).
 * **Estrategia de mitigación:** La usabilidad se aborda como un requisito esencial: flujos de pocos pasos, terminología clínica en lugar de técnica y validaciones que previenen el error. Se contempla la entrega de un manual de usuario por rol y una etapa de marcha blanca antes de retirar los registros en papel.
 
 ### 💰 Factibilidad Económica
@@ -49,6 +49,6 @@
 * **Costos:** La infraestructura se limita a servicios en la nube de nivel gratuito o de costo moderado, sin inversión en servidores propios (`EXC-01`, `SR-01`).
 * **Beneficios cuantificables:**
   * Reducir la inasistencia del 18% recupera capacidad de consulta hoy desperdiciada en 12 consultorios.
-  * Acortar el agendamiento de 20 a menos de 3 minutos libera horas operativas del personal de admisión.
-  * El seguimiento sistemático de glosas reduce la facturación a EPS que hoy se pierde o se cobra con retraso.
-* **Beneficios no cuantificables:** Prevención de errores de medicación y cumplimiento demostrable de la Ley N.° 29733 de Protección de Datos Personales.
+  * Acortar el agendamiento de 20 a menos de 3 minutos libera horas operativas del personal de admisión (`OBJ-02`).
+  * El seguimiento sistemático de glosas reduce la facturación a EPS que hoy se pierde o se cobra con retraso (`OBJ-04`).
+* **Beneficios no cuantificables:** Prevención de errores de medicación y cumplimiento demostrable de la Ley N.° 29733 de Protección de Datos Personales (`SR-02`).

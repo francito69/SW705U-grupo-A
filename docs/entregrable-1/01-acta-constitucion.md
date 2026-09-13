@@ -6,7 +6,7 @@
 
 | Campo | Detalle |
 | :--- | :--- |
-| **Nombre del Proyecto** | Sistema de Información Clínico-Administrativo para la Clínica San Rafael S.A.C. |
+| **Nombre del Proyecto** | Sistema de Información Clínico-Administrativo (SIRA) para la Clínica San Rafael S.A.C. |
 | **Patrocinador** | Gerencia General, Clínica San Rafael S.A.C. |
 | **Equipo de Desarrollo** | **Grupo A:**<br>• Albino Soto, Christopher Henrry<br>• Inga Champi, Franz Joe<br>• Rashuaman Sapallanay, Ricco Didier |
 | **Fecha del Acta** | Inicio del Ciclo Académico |
@@ -16,15 +16,15 @@
 
 ## 1.2. Justificación del Proyecto
 
-La **Clínica San Rafael S.A.C.** evolucionó de una atención de consulta externa básica hacia una oferta multiespecialidad con laboratorio, imágenes, farmacia, hospitalización y emergencia. Sin embargo, conservó una gestión de información manual y fragmentada que produce cinco perjuicios operativos y financieros verificables:
+La **Clínica San Rafael S.A.C.** evolucionó hacia una oferta multiespecialidad con laboratorio, imágenes, farmacia, hospitalización y emergencia en su sede de San Borja. Sin embargo, conservó una gestión manual y fragmentada que genera cinco problemas críticos:
 
-* 🚨 **Riesgo clínico:** Historias clínicas dispersas en papel y hojas de cálculo Excel por especialidad, sin una vista única del paciente. Se han reportado errores de medicación por desconocimiento del historial clínico completo.
-* 📉 **Pérdida de demanda e ingresos:** Agenda de citas gestionada por vía telefónica con tiempos de espera de hasta 20 minutos, citas duplicadas o mal asignadas, y una tasa de inasistencia (*no-show*) del 18% por falta de recordatorios.
-* ⏱️ **Demora diagnóstica:** Entrega de resultados de laboratorio e imágenes en formato físico en papel, con retrasos de hasta 48 horas y extravío ocasional de los exámenes.
-* 💸 **Deterioro del flujo de caja:** Procesos de facturación y conciliación manual con 5 EPS y aseguradoras (incluyendo SOAT), lo que genera glosas (rechazos de pago) y demoras sustanciales en la cobranza.
-* 🙈 **Ceguera gerencial:** La dirección carece de indicadores oportunos en tiempo real sobre la tasa de ocupación de consultorios, tiempos de espera e ingresos por especialidad o convenio.
+* 🚨 **Riesgo clínico:** Historias clínicas dispersas en papel y Excel por especialidad, reportando errores de medicación por desconocimiento del historial clínico completo.
+* 📉 **Pérdida de demanda e ingresos:** Agenda telefónica con esperas de hasta 20 minutos, citas duplicadas y una tasa de inasistencia (*no-show*) del 18% por falta de recordatorios.
+* ⏱️ **Demora diagnóstica:** Resultados de laboratorio e imágenes en papel con retrasos de hasta 48 horas y extravíos ocasionales.
+* 💸 **Deterioro del flujo de caja:** Facturación y conciliación manual con 5 EPS y SOAT que genera glosas (rechazos de pago) y demoras en la cobranza.
+* 🙈 **Ceguera gerencial:** Ausencia de indicadores en tiempo real sobre la ocupación de 12 consultorios, tiempos de espera e ingresos por convenio.
 
-En consecuencia, el proyecto automatizará e integrará la gestión clínico-administrativa para garantizar la continuidad de la atención médica, reducir el ausentismo y agilizar la liquidez financiera de la empresa.
+En consecuencia, el sistema SIRA automatizará e integrará la gestión clínico-administrativa para mejorar la calidad de atención y la liquidez financiera.
 
 ---
 
@@ -42,11 +42,11 @@ En consecuencia, el proyecto automatizará e integrará la gestión clínico-adm
 
 ## 1.4. Alcance Resumido
 
-El proyecto comprende el desarrollo e implantación de un sistema de información clínico-administrativo web para la sede de San Borja de la Clínica San Rafael S.A.C., integrando en una sola plataforma los procesos actualmente dispersos.
+El proyecto comprende el desarrollo e implantación del sistema web **SIRA** para la sede San Borja de la Clínica San Rafael S.A.C., integrando en una sola plataforma los procesos actualmente dispersos.
 
 ### Módulos Imprescindibles (Sprints 1 y 2):
 * **M1 — Historia Clínica Electrónica:** Registro y búsqueda de pacientes, expediente único con antecedentes, atenciones multiespecialidad, diagnósticos CIE-10, indicaciones y recetas con acceso restringido por rol.
-* **M2 — Agenda y Citas Médicas:** Disponibilidad consolidada, programación con bloqueo de solapamientos, confirmación, recordatorios, reprogramación y cancelación con motivo.
+* **M2 — Agenda y Citas Médicas:** Disponibilidad consolidada de consultorios, programación con bloqueo de solapamientos, confirmación, recordatorios, reprogramación y cancelación con motivo.
 * **M3 — Laboratorio e Imágenes:** Generación de órdenes desde la consulta, seguimiento de estados, carga de resultados digitales y notificación automática al médico y paciente.
 * **M4 — Facturación y Convenios:** Tarifarios diferenciados (Particular, EPS, SOAT), cálculo de copagos, emisión de comprobantes internos y módulo de gestión de glosas.
 * **M5 — Reportes Gerenciales:** Dashboard interactivo con métricas de ocupación, tiempos de espera, ingresos e inasistencia.
@@ -68,7 +68,7 @@ El proyecto comprende el desarrollo e implantación de un sistema de informació
 | **EXC-03** | Integración por API/Web Services con sistemas externos fuera de las 5 EPS/aseguradoras definidas en el caso. |
 | **EXC-04** | Gestión de hospitalización y cirugía ambulatoria (censo de camas, programación de SOP o protocolos quirúrgicos). |
 | **EXC-05** | Control de inventario físico y dispensación de farmacia (stock, lotes, vencimientos); el alcance concluye en la receta digital. |
-| **EXC-06** | Emisión de comprobantes electrónicos con firma digital/CDR ante la SUNAT (el sistema genera comprobantes de control interno). |
+| **EXC-06** | Emisión de comprobantes electrónicos con firma digital/CDR ante SUNAT (el sistema genera comprobantes de control interno). |
 | **EXC-07** | Almacenamiento/visualización de imágenes médicas en formato DICOM o servidores PACS (los resultados se gestionan como documentos digitales PDF/imagen). |
 | **EXC-08** | Migración masiva de registros históricos físicos en papel o Excel; únicamente se cargará el conjunto de datos de prueba. |
 | **EXC-09** | Desarrollo de aplicaciones móviles nativas para Android o iOS (la solución será exclusivamente una aplicación web adaptativa/*responsive*). |
