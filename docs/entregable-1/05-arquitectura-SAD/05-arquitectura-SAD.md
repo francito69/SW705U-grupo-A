@@ -109,7 +109,7 @@ Se adopta formalmente una **arquitectura web cliente-servidor basada en un Monol
 ---
 
 ### 5.1.4. Diagrama de Componentes del Monolito Modular
-
+![Diagrama de Componentes ](Componentes.png)
 *Imagen de: Componentes del Monolito Modular.*
 
 #### Guía Paso a Paso para Construir el Diagrama en Lucidchart
@@ -178,22 +178,9 @@ Describir la organización funcional del sistema en capas, los módulos de domin
   - `Servicios Transversales`: `AuditService` y `NotificationService`.
 - **Capa 4: Persistencia:** Mapeo objeto-relacional y repositorios de entidades (`PacienteRepo`, `CitaRepo`, `AtencionRepo`, `OrdenRepo`, `FacturaRepo`, `AuditoriaRepo`, `OutboxRepo`).
 
-*Imagen de: Vista Lógica por Capas.*
+![Vista Logica](logica.png)
+*Imagen de: Vista Lógica por Capas. comentario : Debe corregirse * 
 
-#### Guía Paso a Paso para Construir la Vista Lógica en Lucidchart
-
-1. **Lienzo:** Diagrama de paquetes UML horizontal titulado: `«SIRA — Vista Lógica por Capas y Módulos de Negocio»`.
-2. **Capas Principales (Cajas rectangulares apiladas verticalmente):**
-
-   - **Capa Superior:** `«Capa de Presentación»` con paquetes `pkg_ui_admision`, `pkg_ui_medico`, `pkg_ui_enfermeria`, `pkg_ui_laboratorio`, `pkg_ui_caja` y `pkg_ui_gerencia`.
-   - **Segunda Capa:** `«Capa de Aplicación y Servicios REST»` con paquetes `pkg_api_auth`, `pkg_api_routers`, `pkg_dto_schemas` y `pkg_security_rbac`.
-   - **Tercera Capa:** `«Capa de Dominio Clínico-Administrativo»` con 5 paquetes modulares bien delimitados (`pkg_domain_hce`, `pkg_domain_agenda`, `pkg_domain_laboratorio`, `pkg_domain_facturacion`, `pkg_domain_reportes`) y el paquete transversal `pkg_domain_auditoria`.
-   - **Cuarta Capa:** `«Capa de Persistencia e Integración»` con paquetes `pkg_repositorios_db`, `pkg_alembic_migrations`, `pkg_file_storage` y `pkg_outbox_gateway`.
-3. **Dependencias:**
-
-   - Dibuja flechas punteadas con punta abierta `«use»` desde la capa superior descendiendo estrictamente hacia la capa inmediata inferior.
-   - **Regla de oro de modularidad:** Prohíbe y excluye explícitamente cualquier flecha entre paquetes de dominio que se salte la capa de servicios, y prohíbe llamadas directas desde la capa de Presentación a la Persistencia.
-   - Conecta el paquete transversal `pkg_domain_auditoria` con llamadas `«invokes»` provenientes de `pkg_domain_hce` y `pkg_domain_facturacion`.
 
 ---
 
@@ -222,6 +209,7 @@ Modelar el comportamiento dinámico, los hilos concurrentes, las transacciones c
 4. El sistema vincula el resultado al expediente HCE del paciente haciéndolo visible al médico tratante en 4 horas desde la toma de muestra.
 5. Se inserta un evento de notificación en la tabla outbox: el trabajador asíncrono envía un SMS/correo al paciente informando que sus resultados están disponibles para recojo o consulta web, sin exponer información médica confidencial por canal inseguro (cumplimiento Ley N.° 29733).
 
+![Vista de Procesos](Procesos.png)
 *Imagen de: Vista de Procesos.*
 
 #### Guía Paso a Paso para Construir la Vista de Procesos en Lucidchart
@@ -336,6 +324,7 @@ sira-web-system/
 └── README.md                           # Documentación de inicio rápido y convenciones
 ```
 
+![Vista de desarrollo](Desarrollo.png)
 *Imagen de: Vista de Desarrollo.*
 
 #### Guía Paso a Paso para Construir la Vista de Desarrollo en Lucidchart
@@ -388,6 +377,7 @@ Especificar la infraestructura de ejecución, los nodos de computación, las zon
 
    - Pasarela externa en la nube (Twilio, AWS SNS o SendGrid) conectada mediante HTTPS para el despacho final de SMS y correos.
 
+![Vista de despliegue](despliegue.png)
 *Imagen de: Vista de Despliegue Físico.*
 
 #### Guía Paso a Paso para Construir la Vista Física en Lucidchart
@@ -437,6 +427,7 @@ Validar que las cuatro vistas anteriores (lógica, procesos, desarrollo y físic
 
 #### Diagrama de Secuencia del Escenario S2 (Agendamiento y Recordatorio Desacoplado)
 
+![diagrama de secuencia escenario s2](secuenciaDeEscenario.png)
 *Imagen de: Diagrama de Secuencia Escenario S2.*
 
 #### Guía Paso a Paso para Construir el Diagrama de Secuencia en Lucidchart
