@@ -125,7 +125,7 @@ El límite del sistema SIRA abarca los módulos de software web desplegados en l
 
 ---
 
-#### 3.6\. Registro Formal de Supuestos (Cadena Dato $\\rightarrow$ Criterio $\\rightarrow$ Decisión $\\rightarrow$ Evidencia)
+#### 3.6 Registro Formal de Supuestos (Cadena Dato $ \rightarrow$ Criterio $\rightarrow$ Decisión $\rightarrow$ Evidencia)
 
 | N.°        | Dato o Información Incompleta                                                             | Criterio Técnico / Académico Aplicado                                                                                       | Decisión de Ingeniería Tomada                                                                                                                | Evidencia Documental                                 |
 | ---------- | ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------- |
