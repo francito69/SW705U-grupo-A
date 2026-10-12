@@ -1,0 +1,1451 @@
+% =============================================================================
+% SW705 - Taller de Ingenieria de Software I (UNI - FIIS)
+% Guia practica - Semana 6: Diseno de datos y prototipo UX/UI
+% Entregable 4 (Classroom) = Avance 3 del proyecto integrador
+% Grupo A - Sistema SIRA - Clinica San Rafael S.A.C.
+%
+% Compilar con pdfLaTeX (Overleaf: Menu > Compiler > pdfLaTeX).
+% Las notas para el equipo van como comentarios (%) y no salen en el PDF.
+%
+% Imagenes que usa este archivo (en Overleaf, subirlas a la carpeta figuras/):
+%   logo.png
+%   diagrama-componentes.pdf, modelo-entidad-relacion.pdf   (docs/entregable-4/)
+%   registroAtencionConsultaHCEunificada.png, AgendamientoCitasMedicas.png,
+%   RegistroTriajeSignosVitales.png, DashboardGerencial.png
+%                                       (docs/entregable-1/07-prototipo-ux-ui/)
+% Los wireframes de baja fidelidad estan dibujados con TikZ dentro del archivo.
+% =============================================================================
+\documentclass[11pt,a4paper]{article}
+
+% ---------------------------------------------------------------- Idioma
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[spanish,es-tabla,es-noshorthands]{babel}
+\usepackage{lmodern}
+\usepackage{amssymb}
+
+% ---------------------------------------------------------------- Pagina
+\usepackage[margin=2.2cm,headheight=15pt]{geometry}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{titletoc}
+
+% ---------------------------------------------------------------- Tablas y figuras
+\usepackage[table]{xcolor}
+\usepackage{array}
+\usepackage{tabularx}
+\usepackage{xltabular}
+\usepackage{graphicx}
+\graphicspath{{./}{figuras/}{../entregable-1/07-prototipo-ux-ui/}}
+\usepackage{tikz}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{hyperref}
+% Las rutas largas del repositorio tambien pueden partirse en los guiones
+\expandafter\def\expandafter\UrlBreaks\expandafter{\UrlBreaks\do-\do_}
+
+% ---------------------------------------------------------------- Colores
+\definecolor{guinda}{HTML}{7B0D0D}
+\definecolor{grisborde}{HTML}{BFBFBF}
+\definecolor{fondorecuadro}{HTML}{FFF8E7}
+\arrayrulecolor{grisborde}
+\renewcommand{\arraystretch}{1.35}
+
+\hypersetup{
+  colorlinks=true,
+  linkcolor=guinda,
+  urlcolor=guinda,
+  pdftitle={Guía práctica Semana 6 - Diseño de datos y prototipo UX/UI - Grupo A},
+  pdfauthor={Grupo A - SW705}
+}
+
+% ---------------------------------------------------------------- Encabezado y pie
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small SW705 --- Taller de Ingeniería de Software I}
+\fancyhead[R]{\small Guía práctica --- Semana 6}
+\fancyfoot[L]{\small Grupo A --- Sistema SIRA}
+\fancyfoot[R]{\small \thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------------------------------------------------------------- Titulos e indice
+\titleformat{\section}{\Large\bfseries\color{guinda}}{Paso \thesection.}{0.5em}{}
+\titleformat{\subsection}{\large\bfseries}{\thesubsection}{0.6em}{}
+\titlecontents{section}[0pt]{\addvspace{6pt}\bfseries}
+  {Paso \thecontentslabel.\enspace}{}{\titlerule*[0.6pc]{.}\contentspage}
+\titlecontents{subsection}[3.8em]{}
+  {\contentslabel{2.3em}}{}{\titlerule*[0.6pc]{.}\contentspage}
+\setcounter{tocdepth}{2}
+
+% ---------------------------------------------------------------- Codigo SQL
+\renewcommand{\lstlistingname}{Código}
+\lstdefinestyle{sql}{
+  language=SQL,
+  basicstyle=\ttfamily\footnotesize,
+  keywordstyle=\color{guinda}\bfseries,
+  commentstyle=\color{gray}\itshape,
+  frame=single,
+  rulecolor=\color{grisborde},
+  breaklines=true,
+  columns=fullflexible,
+  showstringspaces=false,
+  literate={á}{{\'a}}1 {é}{{\'e}}1 {í}{{\'i}}1 {ó}{{\'o}}1 {ú}{{\'u}}1
+           {Á}{{\'A}}1 {É}{{\'E}}1 {Í}{{\'I}}1 {Ó}{{\'O}}1 {Ú}{{\'U}}1
+           {ñ}{{\~n}}1 {Ñ}{{\~N}}1 {°}{{\textdegree}}1
+}
+% Salida de consola (evidencia de ejecucion)
+\lstdefinestyle{consola}{
+  style=sql,
+  language={},
+  basicstyle=\ttfamily\scriptsize,
+  columns=fixed,
+  backgroundcolor=\color{black!3}
+}
+
+% ---------------------------------------------------------------- Macros propias
+% Celda de encabezado blanca sobre fondo guinda
+\newcommand{\cab}[1]{\textcolor{white}{\textbf{#1}}}
+% Altura minima de una fila vacia
+\newcommand{\fila}{\rule{0pt}{2.2em}}
+% Columna X alineada a la izquierda
+\newcolumntype{L}{>{\raggedright\arraybackslash}X}
+% Columna de ancho fijo alineada a la izquierda
+\newcolumntype{P}[1]{>{\raggedright\arraybackslash}p{#1}}
+% Endpoint: \ep{METODO}{/ruta}
+\newcommand{\ep}[2]{{\footnotesize\texttt{\textcolor{guinda}{#1}~#2}}}
+% Fila separadora de modulo dentro de una tabla de 4 columnas
+\newcommand{\grupo}[1]{\multicolumn{4}{|l|}{\cellcolor{fondorecuadro}\textbf{#1}} \\ \hline}
+% Espacio reservado para una imagen: \marcador[alto]{texto}
+\newcommand{\marcador}[2][5cm]{%
+  \begin{center}
+    \fcolorbox{grisborde}{white}{%
+      \parbox[c][#1][c]{0.85\linewidth}{\centering\color{gray}\itshape #2}}
+  \end{center}}
+% Nombre de tabla de la base de datos; puede partirse despues de cada guion bajo
+\newcommand{\tb}[1]{{\renewcommand{\_}{\textunderscore\allowbreak}\texttt{#1}}}
+
+% ---------------------------------------------------------------- Wireframes (TikZ)
+% Estilos en escala de grises: baja fidelidad, sin colores ni datos reales.
+\tikzset{
+  wfmarco/.style={draw=black!75, line width=0.9pt},
+  wfcaja/.style={draw=black!55, fill=white, rounded corners=1pt},
+  wfpanel/.style={draw=black!45, fill=black!3, rounded corners=2pt},
+  wfgris/.style={draw=black!35, fill=black!12, rounded corners=1pt},
+  wfoscuro/.style={draw=black!80, fill=black!70, rounded corners=1pt},
+  wftxt/.style={font=\scriptsize\sffamily, anchor=west, inner sep=1pt},
+  wftit/.style={font=\footnotesize\bfseries\sffamily, anchor=west, inner sep=1pt},
+  wfmini/.style={font=\tiny\sffamily, anchor=west, inner sep=1pt, text=black!60},
+  wflinea/.style={draw=black!30, line width=1.6pt},
+}
+% Linea de texto simulado: \wflin{x}{y}{largo}
+\newcommand{\wflin}[3]{\draw[wflinea] (#1,#2) -- ++(#3,0);}
+% Campo de entrada: \wfcampo{x1}{y1}{x2}{y2}{texto de ayuda}
+\newcommand{\wfcampo}[5]{%
+  \draw[wfcaja] (#1,#2) rectangle (#3,#4);
+  \node[wftxt, text=black!55] at (#1+0.12,{(#2+#4)/2}) {#5};}
+% Boton secundario y primario: \wfboton{x1}{y1}{x2}{y2}{texto}
+\newcommand{\wfboton}[5]{%
+  \draw[draw=black!70, fill=white, rounded corners=2pt] (#1,#2) rectangle (#3,#4);
+  \node[font=\scriptsize\bfseries\sffamily] at ({(#1+#3)/2},{(#2+#4)/2}) {#5};}
+\newcommand{\wfprimario}[5]{%
+  \draw[wfoscuro, rounded corners=2pt] (#1,#2) rectangle (#3,#4);
+  \node[font=\scriptsize\bfseries\sffamily, text=white] at ({(#1+#3)/2},{(#2+#4)/2}) {#5};}
+% Imagen o avatar: caja con una X
+\newcommand{\wfimagen}[4]{%
+  \draw[wfgris] (#1,#2) rectangle (#3,#4);
+  \draw[black!40] (#1,#2) -- (#3,#4) (#1,#4) -- (#3,#2);}
+% Bloques de la matriz de horarios: libre, ocupado y seleccionado
+\newcommand{\slotL}[3]{%
+  \draw[wfcaja] (#1,#2) rectangle ++(1.9,0.85);
+  \node[wftxt, font=\scriptsize\bfseries\sffamily] at (#1+0.1,#2+0.58) {#3};
+  \node[wfmini] at (#1+0.1,#2+0.22) {Libre};
+  \node[font=\scriptsize\sffamily] at (#1+1.65,#2+0.58) {(+)};}
+\newcommand{\slotO}[3]{%
+  \draw[wfgris] (#1,#2) rectangle ++(1.9,0.85);
+  \node[wftxt, text=black!45] at (#1+0.1,#2+0.58) {#3};
+  \node[wfmini, text=black!45] at (#1+0.1,#2+0.22) {Ocupado};}
+\newcommand{\slotS}[3]{%
+  \draw[wfoscuro] (#1,#2) rectangle ++(1.9,0.85);
+  \node[wftxt, font=\scriptsize\bfseries\sffamily, text=white] at (#1+0.1,#2+0.58) {#3};
+  \node[wfmini, text=white] at (#1+0.1,#2+0.22) {Seleccionado};
+  \node[font=\scriptsize\sffamily, text=white] at (#1+1.65,#2+0.58) {$\checkmark$};}
+% Barra superior comun a todas las pantallas
+\newcommand{\wfbarra}[3]{% ancho, alto total, texto de la derecha
+  \fill[black!70] (0,#2-0.6) rectangle (#1,#2);
+  \node[wftxt, font=\scriptsize\bfseries\sffamily, text=white] at (0.2,#2-0.3) {[Logo] SIRA};
+  \node[wftxt, text=white] at (2.2,#2-0.3)
+    {Pacientes \quad Agenda y citas \quad Triaje \quad HCE \quad Caja \quad Reportes};
+  \node[wftxt, text=white, anchor=east] at (#1-0.2,#2-0.3) {#3};}
+
+% =============================================================================
+\begin{document}
+
+% ---------------------------------------------------------------- Caratula
+\begin{titlepage}
+  \centering
+  {\Large\bfseries UNIVERSIDAD NACIONAL DE INGENIERÍA\par}
+  \vspace{0.2cm}
+  {\large Facultad de Ingeniería Industrial y de Sistemas\par}
+  {\large Escuela de Ingeniería de Software\par}
+
+  \vspace{1.5cm}
+  \IfFileExists{logo.png}{\includegraphics[width=4.5cm]{logo.png}}{%
+    \IfFileExists{figuras/logo.png}{\includegraphics[width=4.5cm]{figuras/logo.png}}{}}\par
+
+  \vspace{1cm}
+  {\large SW705 --- Taller de Ingeniería de Software I\par}
+  \vspace{0.2cm}
+  {\normalsize Entregable 4 --- Avance 3 del proyecto integrador\par}
+
+  \vspace{1cm}
+  {\large\bfseries Sistema de Información Clínico-Administrativo (SIRA)\par}
+  {\large Caso aplicado: Clínica San Rafael S.A.C. --- Sede San Borja\par}
+  \vspace{0.4cm}
+  {\normalsize Docente: Mg. Ing. José Carlos García La Riva\par}
+
+  \vspace{1.5cm}
+  \begin{tabularx}{0.9\linewidth}{|>{\bfseries\raggedright\arraybackslash}p{4.3cm}|L|}
+    \hline
+    Integrantes del equipo & Albino Soto, Christopher Henrry \newline
+                             Inga Champi, Franz Joe \newline
+                             Rashuaman Sapallanay, Ricco Didier \\ \hline
+    Código(s)              & 20231158C \newline 20231302G \newline 20231242D \\ \hline
+    Sección                & \\ \hline % TODO: completar la seccion del curso
+    Fecha                  & \\ \hline % TODO: completar la fecha de entrega
+    Grupo                  & Grupo A \\ \hline
+    Repositorio            & \url{https://github.com/francito69/SW705U-grupo-A} \\ \hline
+  \end{tabularx}
+
+  \vfill
+  {\small Lima, Perú --- Ciclo 2026-2\par}
+\end{titlepage}
+
+% ---------------------------------------------------------------- Indice
+\tableofcontents
+\newpage
+
+% =============================================================================
+\section*{Insumos de partida y organización del equipo}
+\addcontentsline{toc}{section}{Insumos de partida y organización del equipo}
+
+El diseño de datos y de pantallas de este entregable es coherente con los
+siguientes insumos de semanas anteriores.
+
+\subsection*{Insumos utilizados}
+
+\begin{xltabular}{\linewidth}{|P{3.2cm}|P{1.5cm}|L|L|}
+  \caption{Insumos de partida del diseño}\label{tab:insumos}\\
+  \hline
+  \rowcolor{guinda}\cab{Insumo} & \cab{Semana} & \cab{Ubicación en el repositorio} & \cab{Uso en este entregable} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Insumo} & \cab{Semana} & \cab{Ubicación en el repositorio} & \cab{Uso en este entregable} \\ \hline
+  \endhead
+  Backlog (historias de usuario) & 3 &
+    \nolinkurl{docs/entregable-1/03-especificacion-requerimientos-ERS.md} (secciones 3.7 y 3.8) &
+    Origen de los módulos, las pantallas y la matriz de trazabilidad \\ \hline
+  Diagrama de clases & 4 &
+    \nolinkurl{docs/entregable-1/04-modelos-uml/} &
+    Origen de las tablas del modelo de base de datos \\ \hline
+  Documento de arquitectura (SAD) & 5 &
+    \nolinkurl{docs/entregable-1/05-arquitectura-SAD/} &
+    Estilo arquitectónico, módulos y motor de base de datos \\ \hline
+  Especificación de pantallas UX/UI & 6 &
+    \nolinkurl{docs/entregable-1/07-prototipo-ux-ui/} &
+    Arquitectura de información, sistema de diseño y mockups de las cuatro pantallas del
+    paso~\ref{sec:prototipo} \\ \hline
+\end{xltabular}
+
+\subsection*{Reparto de responsabilidades}
+
+% TODO: confirmar el reparto. Se tomo de los commits del repositorio:
+% Ricco subio los scripts SQL y los diagramas, Franz la especificacion 07 de prototipos.
+\begin{xltabular}{\linewidth}{|P{4.5cm}|P{3.5cm}|L|}
+  \caption{Reparto de responsabilidades del equipo}\label{tab:reparto}\\
+  \hline
+  \rowcolor{guinda}\cab{Frente de trabajo} & \cab{Pasos de la guía} & \cab{Responsable} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Frente de trabajo} & \cab{Pasos de la guía} & \cab{Responsable} \\ \hline
+  \endhead
+  Modelo de datos           & Pasos 2 y 3 & Rashuaman Sapallanay, Ricco Didier \\ \hline
+  Prototipo UX/UI           & Paso 4      & Inga Champi, Franz Joe \\ \hline
+  Componentes y trazabilidad & Pasos 1 y 5 & Albino Soto, Christopher Henrry \\ \hline
+\end{xltabular}
+
+% =============================================================================
+\newpage
+\section{Diseño de componentes}\label{sec:componentes}
+
+El sistema sigue el estilo de monolito modular en capas definido en el SAD (ADR-01): un solo
+backend en el que cada módulo es un paquete con su propio router REST (\nolinkurl{app/api/v1/})
+y su propia lógica de dominio (\nolinkurl{app/modules/}). La comunicación se organiza así:
+
+\begin{itemize}[nosep]
+  \item \textbf{Hacia la interfaz web:} API REST bajo el prefijo \texttt{/api/v1}, con JSON sobre
+        HTTPS, token JWT y control de acceso por rol en el servidor.
+  \item \textbf{Entre módulos:} cada módulo publica un servicio con las mismas operaciones de su
+        API. Los demás módulos llaman a ese servicio y nunca consultan sus tablas.
+  \item \textbf{Auditoría y notificaciones:} son componentes transversales con interfaz interna
+        únicamente; no se publican en la API.
+\end{itemize}
+
+Ningún endpoint usa \texttt{DELETE} sobre información clínica: los errores se corrigen con una
+operación de anulación que conserva el registro (RNF-004). En las tablas siguientes las rutas
+se escriben sin el prefijo \texttt{/api/v1}.
+
+\subsection{Componentes del sistema}
+
+\begin{xltabular}{\linewidth}{|P{2.9cm}|L|P{5.6cm}|P{2.3cm}|}
+  \caption{Diseño de componentes del sistema SIRA}\label{tab:componentes}\\
+  \hline
+  \rowcolor{guinda}\cab{Módulo} & \cab{Responsabilidad única} & \cab{Interfaz que expone} & \cab{Historias de usuario que cubre} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Módulo} & \cab{Responsabilidad única} & \cab{Interfaz que expone} & \cab{Historias de usuario que cubre} \\ \hline
+  \endhead
+  M1 --- Historia Clínica Electrónica y Triaje &
+    Mantener el expediente clínico único del paciente: filiación, triaje, atenciones con
+    diagnóstico CIE-10 y receta, y su anulación lógica. &
+    \ep{GET}{/pacientes} \newline
+    \ep{POST}{/pacientes} \newline
+    \ep{GET}{/pacientes/\{id\}/hce} \newline
+    \ep{POST}{/triajes} \newline
+    \ep{POST}{/atenciones} \newline
+    \ep{GET}{/atenciones/\{id\}} \newline
+    \ep{POST}{/atenciones/\{id\}/anular} \newline
+    \ep{GET}{/diagnosticos-cie10} &
+    HU01, HU03, HU04, HU05, HU08 \\ \hline
+  M2 --- Agenda y Citas Médicas &
+    Administrar la disponibilidad de los médicos y de los 12 consultorios y el ciclo de vida
+    de la cita, sin solapamientos. &
+    \ep{GET}{/medicos} \newline
+    \ep{GET}{/citas/disponibilidad} \newline
+    \ep{GET}{/citas} \newline
+    \ep{POST}{/citas} \newline
+    \ep{POST}{/citas/\{id\}/reprogramar} \newline
+    \ep{POST}{/citas/\{id\}/cancelar} \newline
+    \ep{POST}{/citas/\{id\}/check-in} &
+    HU02, HU06, HU07 \\ \hline
+  M3 --- Laboratorio e Imágenes &
+    Gestionar el circuito de las órdenes de examen y la custodia de sus resultados digitales. &
+    \ep{POST}{/ordenes} \newline
+    \ep{GET}{/ordenes} \newline
+    \ep{PATCH}{/ordenes/\{id\}/estado} \newline
+    \ep{POST}{/ordenes/\{id\}/resultado} \newline
+    \ep{GET}{/resultados/\{id\}/archivo} &
+    HU09, HU10 \\ \hline
+  M4 --- Facturación y Convenios &
+    Gestionar el cobro de las atenciones según el convenio del paciente: tarifa, cobertura,
+    copago, comprobante interno y glosas. &
+    \ep{GET}{/convenios} \newline
+    \ep{GET}{/servicios} \newline
+    \ep{GET}{/tarifas/copago} \newline
+    \ep{POST}{/facturas} \newline
+    \ep{POST}{/facturas/\{id\}/glosas} \newline
+    \ep{PATCH}{/glosas/\{id\}/estado} &
+    HU11, HU12 \\ \hline
+  M5 --- Reportes Gerenciales &
+    Calcular indicadores de gestión agregados, en solo lectura y sin exponer datos clínicos
+    individuales. &
+    \ep{GET}{/reportes/indicadores} \newline
+    \ep{GET}{/reportes/ocupacion} \newline
+    \ep{GET}{/reportes/ingresos} &
+    HU13 \\ \hline
+  M6 --- Portal del Paciente (condicional) &
+    Permitir que el paciente agende y consulte sus propias citas por autoservicio, con las
+    mismas reglas de M2. &
+    \ep{GET}{/portal/disponibilidad} \newline
+    \ep{POST}{/portal/citas} \newline
+    \ep{GET}{/portal/mis-citas} &
+    HU14 \\ \hline
+  T1 --- Seguridad y control de acceso (transversal) &
+    Autenticar a los usuarios y autorizar cada solicitud según su rol (RBAC). &
+    \ep{POST}{/auth/login} \newline
+    \ep{GET}{/auth/me} \newline
+    Interna: verificación del rol en cada endpoint &
+    Todas (RNF-002); HU01 esc.~2 \\ \hline
+  T2 --- Auditoría (transversal) &
+    Registrar en una bitácora inmutable quién consultó o modificó información clínica, cuándo,
+    desde qué IP y con qué motivo. &
+    Interna: {\footnotesize\texttt{AuditService.registrar()}} &
+    HU01 esc.~2, HU08 (RNF-002, RNF-004) \\ \hline
+  T3 --- Notificaciones (transversal) &
+    Encolar y despachar en segundo plano los recordatorios y avisos (patrón Outbox), con
+    reintentos. &
+    Interna: {\footnotesize\texttt{NotificationService.encolar()}} \newline
+    Proceso en segundo plano cada 60 s &
+    HU07, HU10 (RF-003, RF-005) \\ \hline
+\end{xltabular}
+
+\subsection{Diagrama de componentes}
+
+La figura~\ref{fig:componentes} muestra los componentes de la tabla~\ref{tab:componentes} y sus
+dependencias. Las flechas entre módulos de dominio van en un solo sentido, sin ciclos, como exige
+la vista de desarrollo del SAD.
+
+% Fuente editable: figuras/diagrama-componentes.dot (Graphviz)
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=\linewidth]{diagrama-componentes.pdf}
+  \caption{Diagrama de componentes del sistema SIRA}
+  \label{fig:componentes}
+\end{figure}
+
+\subsection{Detalle de las interfaces}
+
+% Las rutas se derivan de las historias de usuario (ERS 3.7), los casos de uso
+% (04-modelosUML.md), los prototipos (07) y la vista de desarrollo del SAD.
+% El SAD solo fija literalmente POST /api/v1/citas (diagrama de secuencia S2).
+\begingroup\small
+\begin{xltabular}{\linewidth}{|P{5.1cm}|L|P{1.5cm}|P{2.8cm}|}
+  \caption{Operaciones que expone cada componente}\label{tab:interfaces}\\
+  \hline
+  \rowcolor{guinda}\cab{Interfaz} & \cab{Qué hace} & \cab{HU} & \cab{Rol autorizado} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Interfaz} & \cab{Qué hace} & \cab{HU} & \cab{Rol autorizado} \\ \hline
+  \endhead
+  \grupo{M1 --- Historia Clínica Electrónica y Triaje}
+  \ep{GET}{/pacientes} & Busca un paciente por tipo y número de documento. & HU03 & Admisión, Médico, Enfermera \\ \hline
+  \ep{POST}{/pacientes} & Registra un paciente nuevo con su convenio; responde 409 si el documento ya existe. & HU03 & Admisión \\ \hline
+  \ep{GET}{/pacientes/\{id\}/hce} & Devuelve el expediente cronológico (antecedentes, alergias, triajes, atenciones y resultados), paginado de 10 en 10. & HU01 & Médico; Enfermera (solo triaje y alergias) \\ \hline
+  \ep{POST}{/triajes} & Registra los signos vitales de la atención del día y marca una alerta si la presión o la temperatura están fuera de rango. & HU05 & Enfermera \\ \hline
+  \ep{POST}{/atenciones} & Registra la atención con diagnóstico CIE-10 obligatorio, indicaciones y receta. & HU04 & Médico \\ \hline
+  \ep{GET}{/atenciones/\{id\}} & Muestra el detalle de una atención con su receta (botón ``Ver detalle'' de la HCE). & HU01, HU04 & Médico \\ \hline
+  \ep{POST}{/atenciones/\{id\}/anular} & Anula la atención con un motivo de al menos 20 caracteres; el registro se conserva. & HU08 & Médico auditor, Gerencia médica \\ \hline
+  \ep{GET}{/diagnosticos-cie10} & Autocompleta diagnósticos por código o descripción. & HU04 & Médico \\ \hline
+  \grupo{M2 --- Agenda y Citas Médicas}
+  \ep{GET}{/medicos} & Lista los médicos activos por especialidad para los filtros de la agenda. & HU02 & Admisión \\ \hline
+  \ep{GET}{/citas/disponibilidad} & Lista los bloques libres por especialidad, médico y fecha. & HU02 & Admisión \\ \hline
+  \ep{GET}{/citas} & Agenda del día por médico o consultorio, y lista de espera para el triaje. & HU02, HU05 & Admisión, Médico, Enfermera \\ \hline
+  \ep{POST}{/citas} & Reserva la cita y encola su recordatorio en una sola transacción; responde 201, o 409 si el médico o el consultorio ya están ocupados. & HU02, HU07 & Admisión \\ \hline
+  \ep{POST}{/citas/\{id\}/reprogramar} & Libera el bloque anterior y crea la nueva cita enlazada, con su recordatorio. & HU06 & Admisión \\ \hline
+  \ep{POST}{/citas/\{id\}/cancelar} & Cancela la cita con motivo obligatorio y libera el bloque. & HU06 & Admisión \\ \hline
+  \ep{POST}{/citas/\{id\}/check-in} & Registra la llegada del paciente y lo pasa a la lista de espera de enfermería. & HU05 & Admisión \\ \hline
+  \grupo{M3 --- Laboratorio e Imágenes}
+  \ep{POST}{/ordenes} & Emite una orden de examen vinculada a la atención, en estado Solicitado. & HU09 & Médico \\ \hline
+  \ep{GET}{/ordenes} & Bandeja de órdenes por estado, o por paciente para mostrarlas en la HCE. & HU09 & Laboratorio, Médico \\ \hline
+  \ep{PATCH}{/ordenes/\{id\}/estado} & Cambia el estado de la orden (Solicitado $\rightarrow$ En proceso). & HU10 & Laboratorio \\ \hline
+  \ep{POST}{/ordenes/\{id\}/resultado} & Sube el archivo PDF/JPG con su informe, guarda su hash SHA-256 y completa la orden. & HU10 & Laboratorio \\ \hline
+  \ep{GET}{/resultados/\{id\}/archivo} & Entrega el archivo mediante un enlace firmado y temporal. & HU10 & Médico \\ \hline
+  \grupo{M4 --- Facturación y Convenios}
+  \ep{GET}{/convenios} & Catálogo de convenios vigentes: Particular, EPS 1--5 y SOAT. & HU03, HU11 & Admisión, Caja \\ \hline
+  \ep{GET}{/servicios} & Catálogo de servicios médicos y exámenes. & HU09, HU11 & Médico, Caja \\ \hline
+  \ep{GET}{/tarifas/copago} & Calcula la cobertura y el copago estimados para un servicio y un convenio. & HU02, HU11 & Admisión, Caja \\ \hline
+  \ep{POST}{/facturas} & Emite el comprobante interno aplicando el tarifario vigente del convenio. & HU11 & Caja \\ \hline
+  \ep{POST}{/facturas/\{id\}/glosas} & Registra una glosa con su código, motivo e importe observado. & HU12 & Caja \\ \hline
+  \ep{PATCH}{/glosas/\{id\}/estado} & Avanza la glosa: Registrada $\rightarrow$ Sustentada $\rightarrow$ Aceptada o Recuperada. & HU12 & Caja \\ \hline
+  \grupo{M5 --- Reportes Gerenciales}
+  \ep{GET}{/reportes/indicadores} & Ocupación, tiempo de espera, no-show e ingresos por rango de fechas, especialidad y convenio. & HU13 & Gerencia \\ \hline
+  \ep{GET}{/reportes/ocupacion} & Ocupación de cada uno de los 12 consultorios. & HU13 & Gerencia \\ \hline
+  \ep{GET}{/reportes/ingresos} & Ingresos y glosas por convenio y especialidad. & HU13 & Gerencia \\ \hline
+  \grupo{M6 --- Portal del Paciente (condicional)}
+  \ep{GET}{/portal/disponibilidad} & Muestra al paciente los horarios libres, usando el servicio de M2. & HU14 & Paciente \\ \hline
+  \ep{POST}{/portal/citas} & Agenda la cita con las mismas validaciones de M2 y programa su recordatorio. & HU14 & Paciente \\ \hline
+  \ep{GET}{/portal/mis-citas} & Lista las citas del paciente autenticado. & HU14 & Paciente \\ \hline
+  \grupo{T1 --- Seguridad y control de acceso}
+  \ep{POST}{/auth/login} & Valida las credenciales (contraseña con bcrypt) y entrega un token JWT con el rol. & Todas & Todos los usuarios \\ \hline
+  \ep{GET}{/auth/me} & Devuelve el usuario y el rol de la sesión para armar el menú. & Todas & Usuario autenticado \\ \hline
+  \grupo{T2 --- Auditoría}
+  {\footnotesize\texttt{AuditService.registrar()}} & Guarda en la bitácora el usuario, la acción, la tabla, el registro, la IP, la fecha y el motivo. La invocan M1, M2, M3 y M4. & HU01, HU08 & Uso interno \\ \hline
+  \grupo{T3 --- Notificaciones}
+  {\footnotesize\texttt{NotificationService.encolar()}} & Guarda el mensaje en la cola Outbox dentro de la misma transacción del módulo que lo pide. & HU07, HU10 & Uso interno \\ \hline
+  Proceso en segundo plano & Cada 60 s envía los mensajes pendientes por correo o SMS y registra los reintentos. & HU07 & Uso interno \\ \hline
+\end{xltabular}
+\endgroup
+
+\subsection{Propiedad de datos y comunicación entre módulos}
+
+La comunicación entre módulos sigue cuatro reglas:
+
+\begin{enumerate}[nosep]
+  \item Cada tabla tiene un único módulo dueño.
+  \item Las llaves foráneas entre tablas de distintos módulos se mantienen en la base de datos para
+        preservar la integridad referencial (una sola instancia de PostgreSQL, ADR-02), pero el
+        código de un módulo nunca consulta ni modifica las tablas de otro: usa la operación pública
+        del módulo dueño.
+  \item Las dependencias van en un solo sentido, sin ciclos: M6 $\rightarrow$ M2 $\rightarrow$ M1
+        $\leftarrow$ M3 $\leftarrow$ M4. M5 solo lee, y todos usan los componentes transversales.
+  \item Cuando una pantalla necesita datos en sentido contrario (por ejemplo, la HCE con los
+        resultados de laboratorio, o el nombre del convenio en la cabecera del paciente), los combina
+        la capa de aplicación, que orquesta los servicios sin que un módulo de dominio dependa de otro.
+\end{enumerate}
+
+\begin{xltabular}{\linewidth}{|P{2.9cm}|P{4.6cm}|L|}
+  \caption{Tablas que administra cada módulo y datos que consume de otros}\label{tab:propiedad}\\
+  \hline
+  \rowcolor{guinda}\cab{Módulo} & \cab{Tablas que administra} & \cab{Datos que consume de otros módulos (y por qué interfaz)} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Módulo} & \cab{Tablas que administra} & \cab{Datos que consume de otros módulos (y por qué interfaz)} \\ \hline
+  \endhead
+  M1 --- HCE y Triaje &
+    \texttt{pacientes}, \texttt{atenciones}, \texttt{triajes}, \texttt{diagnosticos\_cie10},
+    \texttt{atencion\_diagnosticos}, \texttt{prescripciones} &
+    Ningún otro módulo de dominio; solo registra los accesos en T2. La vista de la HCE la arma
+    la capa de aplicación con datos de M2 (médico de cada atención) y de M3 (resultados). \\ \hline
+  M2 --- Agenda y Citas &
+    \texttt{citas}, \texttt{medicos}, \texttt{especialidades}, \texttt{consultorios} &
+    Datos del paciente (M1: \ep{GET}{/pacientes}); recordatorio de 24 h
+    (T3: {\footnotesize\texttt{NotificationService.encolar()}}); registro de cambios (T2). El copago
+    estimado del paso 3 de la reserva lo pide la interfaz web a M4 (\ep{GET}{/tarifas/copago}). \\ \hline
+  M3 --- Laboratorio e Imágenes &
+    \texttt{ordenes\_examen}, \texttt{resultados} &
+    Atención de origen (M1: \ep{GET}{/atenciones/\{id\}}); aviso de resultado listo (T3); registro
+    de cambios (T2). La lista de exámenes que ve el médico la toma la interfaz web de M4
+    (\ep{GET}{/servicios}). \\ \hline
+  M4 --- Facturación y Convenios &
+    \texttt{convenios}, \texttt{servicios\_medicos}, \texttt{tarifarios\_servicios},
+    \texttt{facturas}, \texttt{factura\_detalle}, \texttt{glosas} &
+    Atención a liquidar (M1: \ep{GET}{/atenciones/\{id\}}); exámenes realizados
+    (M3: \ep{GET}{/ordenes}); registro de glosas (T2). \\ \hline
+  M5 --- Reportes Gerenciales &
+    Ninguna propia (solo lectura) &
+    Agregados de citas, asistencia y espera (M2); hora de inicio de la atención (M1); ingresos
+    y glosas (M4). Los obtiene mediante consultas de solo lectura que publica cada módulo. \\ \hline
+  M6 --- Portal del Paciente &
+    Ninguna propia &
+    Disponibilidad y reserva (M2: \ep{GET}{/citas/disponibilidad}, \ep{POST}{/citas});
+    identidad del paciente (T1). \\ \hline
+  T1 --- Seguridad y control de acceso &
+    \texttt{usuarios}, \texttt{roles} &
+    Ninguno: los demás módulos lo usan para validar el rol. \\ \hline
+  T2 --- Auditoría &
+    \texttt{bitacora\_auditoria} &
+    Ninguno: recibe los eventos de M1, M2, M3 y M4. \\ \hline
+  T3 --- Notificaciones &
+    \texttt{outbox\_notificaciones} &
+    Ninguno: el módulo que encola entrega el destinatario y el mensaje. El envío sale al
+    proveedor externo de correo/SMS por HTTPS. \\ \hline
+\end{xltabular}
+
+% =============================================================================
+\newpage
+\section{Modelo de base de datos}\label{sec:modelo}
+
+\subsection{Transformación de clases a tablas}
+
+% Clase entre parentesis = tabla que sale de un atributo de esa clase al normalizar.
+\begingroup\small
+\begin{xltabular}{\linewidth}{|P{3.1cm}|P{3.2cm}|P{4cm}|L|}
+  \caption{Transformación de las clases del modelo a tablas}\label{tab:clases-tablas}\\
+  \hline
+  \rowcolor{guinda}\cab{Clase del modelo} & \cab{Tabla} & \cab{Llave primaria / foráneas} & \cab{Restricciones} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Clase del modelo} & \cab{Tabla} & \cab{Llave primaria / foráneas} & \cab{Restricciones} \\ \hline
+  \endhead
+  Paciente & \texttt{pacientes} &
+    PK id\_paciente \newline FK id\_convenio &
+    UQ (tipo\_documento, numero\_documento); CHECK tipo\_documento y sexo \\ \hline
+  Convenio & \texttt{convenios} &
+    PK id\_convenio &
+    UQ codigo\_convenio; CHECK tipo\_convenio: PARTICULAR, EPS, SOAT \\ \hline
+  Convenio (porcentaje\_cubierto, copago\_fijo) & \tb{tarifarios\_servicios} &
+    PK id\_tarifario \newline FK id\_servicio, id\_convenio &
+    Cobertura de 0 a 100~\%; montos $\geq 0$; EXCLUDE: sin vigencias superpuestas para un mismo servicio y convenio \\ \hline
+  OrdenExamen (nombre\_prueba, tipo\_examen) & \tb{servicios\_medicos} &
+    PK id\_servicio &
+    UQ codigo\_servicio; CHECK tipo\_servicio; precio $\geq 0$ \\ \hline
+  Medico & \texttt{medicos} &
+    PK id\_medico \newline FK id\_especialidad, id\_usuario &
+    UQ cmp; UQ id\_usuario \\ \hline
+  Medico (especialidad) & \texttt{especialidades} &
+    PK id\_especialidad &
+    UQ nombre \\ \hline
+  Consultorio & \texttt{consultorios} &
+    PK id\_consultorio &
+    UQ numero; piso $\geq 1$ \\ \hline
+  Cita & \texttt{citas} &
+    PK id\_cita \newline FK id\_paciente, id\_medico, id\_consultorio, id\_cita\_origen (UQ), creado\_por &
+    EXCLUDE: sin citas activas superpuestas por médico ni por consultorio; fin $>$ inicio; CHECK estado; motivo obligatorio al cancelar o reprogramar \\ \hline
+  Atencion & \texttt{atenciones} &
+    PK id\_atencion \newline FK id\_paciente, id\_medico, id\_cita (UQ), anulado\_por &
+    Consulta externa exige cita; FINALIZADA exige motivo de consulta; anulación exige motivo ($\geq 20$ caracteres) y usuario; sin DELETE \\ \hline
+  Atencion (diagnostico\_cie10) & \tb{atencion\_diagnosticos} &
+    PK (id\_atencion, codigo\_cie10) \newline FK id\_atencion, codigo\_cie10 &
+    CHECK tipo: PRINCIPAL, SECUNDARIO, PRESUNTIVO; un solo PRINCIPAL por atención \\ \hline
+  Atencion (descripcion\_diagnostico) & \tb{diagnosticos\_cie10} &
+    PK codigo &
+    descripcion NOT NULL \\ \hline
+  Atencion (prescripcion\_receta) & \tb{prescripciones} &
+    PK id\_prescripcion \newline FK id\_atencion &
+    Medicamento, presentación, frecuencia y duración NOT NULL \\ \hline
+  Triaje & \texttt{triajes} &
+    PK id\_triaje \newline FK id\_atencion (UQ), id\_enfermera &
+    Rangos válidos de signos vitales, peso y talla; sistólica $>$ diastólica \\ \hline
+  OrdenExamen & \tb{ordenes\_examen} &
+    PK id\_orden \newline FK id\_atencion, id\_servicio &
+    UQ codigo\_orden; CHECK estado \\ \hline
+  Resultado & \texttt{resultados} &
+    PK id\_resultado \newline FK id\_orden (UQ), id\_validador &
+    hash\_archivo de 64 caracteres; fecha\_resultado $\geq$ fecha\_toma\_muestra \\ \hline
+  Factura & \texttt{facturas} &
+    PK id\_factura \newline FK id\_atencion (UQ), id\_convenio, creado\_por &
+    UQ numero\_comprobante; CHECK estado \\ \hline
+  Factura (montos) & \tb{factura\_detalle} &
+    PK id\_detalle \newline FK id\_factura, id\_servicio, id\_orden (UQ) &
+    cantidad $> 0$; precio $\times$ cantidad = monto cubierto + copago \\ \hline
+  Glosa & \texttt{glosas} &
+    PK id\_glosa \newline FK id\_factura, registrado\_por &
+    monto\_glosado $> 0$; CHECK estado; ACEPTADA, RECHAZADA y RECUPERADA exigen fecha\_resolucion \\ \hline
+  Notificacion & \tb{outbox\_notificaciones} &
+    PK id\_notificacion \newline FK id\_cita &
+    CHECK tipo\_evento, canal y estado; intentos $\geq 0$ \\ \hline
+  BitacoraAuditoria & \tb{bitacora\_auditoria} &
+    PK id\_auditoria \newline FK id\_usuario &
+    Sin UPDATE ni DELETE; ANULAR exige motivo \\ \hline
+  Usuario & \texttt{usuarios} &
+    PK id\_usuario \newline FK id\_rol &
+    UQ username; UQ email \\ \hline
+  Rol & \texttt{roles} &
+    PK id\_rol &
+    UQ nombre; CHECK nombre \\ \hline
+\end{xltabular}
+\endgroup
+
+\subsection{Diagrama entidad-relación}
+
+% Fuente editable: figuras/modelo-entidad-relacion.dot (Graphviz)
+\begin{figure}[p]
+  \centering
+  \includegraphics[width=\linewidth,height=0.9\textheight,keepaspectratio]{modelo-entidad-relacion.pdf}
+  \caption{Modelo entidad-relación del sistema SIRA (notación pata de gallo)}
+  \label{fig:mer}
+\end{figure}
+
+\subsection{Verificación de las formas normales}
+
+\begin{xltabular}{\linewidth}{|P{1.6cm}|P{4.6cm}|L|}
+  \caption{Verificación de 1FN, 2FN y 3FN}\label{tab:formas-normales}\\
+  \hline
+  \rowcolor{guinda}\cab{Forma normal} & \cab{Criterio} & \cab{Cómo lo cumple el modelo} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Forma normal} & \cab{Criterio} & \cab{Cómo lo cumple el modelo} \\ \hline
+  \endhead
+  1FN & Valores atómicos, sin grupos repetitivos en una misma columna. &
+    Una fila por medicamento (\texttt{prescripciones}) y por diagnóstico
+    (\tb{atencion\_diagnosticos}); presión sistólica y diastólica en columnas separadas;
+    apellido paterno y materno separados. \\ \hline
+  2FN & Cumple 1FN y ningún atributo depende solo de una parte de una llave compuesta. &
+    En \tb{atencion\_diagnosticos}, \tb{tipo} depende de la llave completa. Precio,
+    cobertura y copago dependen del servicio y del convenio (\tb{tarifarios\_servicios});
+    \tb{precio\_base\_particular} depende solo del servicio (\tb{servicios\_medicos}). \\ \hline
+  3FN & Cumple 2FN y ningún atributo no clave depende de otro atributo no clave. &
+    Especialidad y descripción del diagnóstico en catálogos propios; el IMC no se almacena;
+    los montos del comprobante se registran por línea en \tb{factura\_detalle}. \\ \hline
+\end{xltabular}
+
+\subsection{Decisiones de normalización justificadas}
+
+\begin{xltabular}{\linewidth}{|P{0.7cm}|P{3.6cm}|P{1.8cm}|L|}
+  \caption{Decisiones de normalización}\label{tab:decisiones}\\
+  \hline
+  \rowcolor{guinda}\cab{N.°} & \cab{Decisión} & \cab{Forma normal} & \cab{Justificación} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{N.°} & \cab{Decisión} & \cab{Forma normal} & \cab{Justificación} \\ \hline
+  \endhead
+  1 & Tabla \texttt{prescripciones} & 1FN &
+    \tb{prescripcion\_receta} guardaba varios medicamentos en un solo texto. \\ \hline
+  2 & Tabla \tb{tarifarios\_servicios} con vigencia & 2FN &
+    Cobertura y copago dependen del par servicio--convenio, no solo del convenio. \\ \hline
+  3 & Catálogos \tb{especialidades} y \tb{diagnosticos\_cie10} & 3FN &
+    El nombre de la especialidad se repetía en cada médico, y la descripción del diagnóstico
+    depende del código CIE-10, no de la atención. \\ \hline
+  4 & IMC sin columna & 3FN &
+    Depende de peso y talla; se calcula al consultar. \\ \hline
+  5 & Anulación lógica & Negocio (RNF-004) &
+    Las tablas clínicas no admiten DELETE; \texttt{atenciones} registra anulación, motivo,
+    usuario y fecha. \\ \hline
+\end{xltabular}
+
+% =============================================================================
+\newpage
+\section{Script SQL y datos de prueba}\label{sec:script}
+
+\subsection{Motor y archivos del script}
+
+Los scripts se ejecutan en orden sobre una base de datos vacía. El tercero no modifica datos:
+cuenta los registros y comprueba que la base rechaza las operaciones que prohíben las reglas
+de negocio.
+
+\begin{xltabular}{\linewidth}{|P{4.5cm}|L|}
+  \caption{Motor de base de datos y ubicación de los scripts}\label{tab:archivos-sql}\\
+  \hline
+  \rowcolor{guinda}\cab{Elemento} & \cab{Detalle} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Elemento} & \cab{Detalle} \\ \hline
+  \endhead
+  Motor de base de datos     & PostgreSQL 16 (decisión ADR-02 del SAD), con la extensión
+                               \texttt{btree\_gist} para las restricciones de exclusión \\ \hline
+  Script de creación         & \nolinkurl{database/01-esquema.sql}: 22 tablas, 10 índices,
+                               8 triggers que impiden el borrado físico o la edición de la
+                               bitácora, y la vista \texttt{v\_facturas\_totales} \\ \hline
+  Script de datos de prueba  & \nolinkurl{database/02-datos-prueba.sql}: 184 registros ficticios
+                               cargados en una sola transacción \\ \hline
+  Script de verificación     & \nolinkurl{database/03-verificacion.sql}: conteo por tabla,
+                               totales de comprobantes y 10 pruebas de restricciones \\ \hline
+  Enlace al repositorio      & \url{https://github.com/francito69/SW705U-grupo-A/tree/main/database} \\ \hline
+\end{xltabular}
+
+\subsection{Script de creación (extracto)}
+
+El extracto muestra la tabla \tb{citas}, que impide en la propia base de datos dos citas activas
+superpuestas para el mismo médico o el mismo consultorio (RF-002, HU02), y el trigger que
+prohíbe el borrado físico de las atenciones (RNF-004, HU08).
+
+% Para incluir el archivo completo desde el repositorio:
+% \lstinputlisting[style=sql, caption={Script de creación}]{ruta/al/01-esquema.sql}
+\begin{lstlisting}[style=sql, caption={Script de creación de tablas (extracto de \texttt{01-esquema.sql})}, label={lst:ddl}]
+CREATE EXTENSION IF NOT EXISTS btree_gist;
+
+CREATE TABLE citas (
+    id_cita            SERIAL      PRIMARY KEY,
+    id_paciente        INT         NOT NULL REFERENCES pacientes (id_paciente),
+    id_medico          INT         NOT NULL REFERENCES medicos (id_medico),
+    id_consultorio     INT         NOT NULL REFERENCES consultorios (id_consultorio),
+    fecha_hora_inicio  TIMESTAMP   NOT NULL,
+    fecha_hora_fin     TIMESTAMP   NOT NULL,
+    estado             VARCHAR(15) NOT NULL DEFAULT 'CONFIRMADA'
+                       CHECK (estado IN ('CONFIRMADA', 'EN_ESPERA', 'ATENDIDA',
+                                         'CANCELADA', 'REPROGRAMADA', 'NO_ASISTIO')),
+    motivo_cancelacion TEXT,
+    hora_llegada       TIMESTAMP,
+    id_cita_origen     INT         UNIQUE REFERENCES citas (id_cita),
+    canal_agendamiento VARCHAR(12) NOT NULL DEFAULT 'ADMISION'
+                       CHECK (canal_agendamiento IN ('ADMISION', 'PORTAL_WEB', 'TELEFONICO')),
+    creado_por         INT         NOT NULL REFERENCES usuarios (id_usuario),
+    creado_en          TIMESTAMP   NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_cita_rango CHECK (fecha_hora_fin > fecha_hora_inicio),
+    CONSTRAINT chk_cita_motivo CHECK (
+        estado NOT IN ('CANCELADA', 'REPROGRAMADA') OR motivo_cancelacion IS NOT NULL),
+    CONSTRAINT no_solapamiento_medico EXCLUDE USING gist (
+        id_medico WITH =,
+        tsrange(fecha_hora_inicio, fecha_hora_fin) WITH &&
+    ) WHERE (estado IN ('CONFIRMADA', 'EN_ESPERA')),
+    CONSTRAINT no_solapamiento_consultorio EXCLUDE USING gist (
+        id_consultorio WITH =,
+        tsrange(fecha_hora_inicio, fecha_hora_fin) WITH &&
+    ) WHERE (estado IN ('CONFIRMADA', 'EN_ESPERA'))
+);
+
+-- Prohibición de borrado físico de información clínica (RNF-004)
+CREATE FUNCTION impedir_borrado() RETURNS trigger AS $$
+BEGIN
+    RAISE EXCEPTION 'No se permite eliminar registros de %: use la anulación lógica (RNF-004)',
+        TG_TABLE_NAME
+        USING ERRCODE = 'restrict_violation';
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_atenciones_sin_borrado BEFORE DELETE ON atenciones
+    FOR EACH ROW EXECUTE FUNCTION impedir_borrado();
+\end{lstlisting}
+
+\subsection{Script de datos de prueba (extracto)}
+
+\begin{lstlisting}[style=sql, caption={Script de inserción de datos de prueba (extracto de \texttt{02-datos-prueba.sql})}, label={lst:inserts}]
+-- M4 - Convenios
+INSERT INTO convenios (codigo_convenio, nombre_institucion, tipo_convenio, contacto_operativo) VALUES
+    ('PARTICULAR',   'Paciente particular', 'PARTICULAR', NULL),
+    ('EPS_RIMAC',    'Rímac EPS',           'EPS',        'convenios@rimac-eps.test'),
+    ('EPS_PACIFICO', 'Pacífico EPS',        'EPS',        'convenios@pacifico-eps.test'),
+    ('EPS_MAPFRE',   'Mapfre Perú EPS',     'EPS',        'convenios@mapfre-eps.test'),
+    ('EPS_SANITAS',  'Sanitas Perú EPS',    'EPS',        'convenios@sanitas-eps.test'),
+    ('EPS_POSITIVA', 'La Positiva EPS',     'EPS',        'convenios@positiva-eps.test'),
+    ('SOAT',         'SOAT',                'SOAT',       'soat@aseguradora.test');
+
+-- M2 - Citas (extracto: una cita reprogramada y la nueva cita enlazada a ella)
+INSERT INTO citas (id_paciente, id_medico, id_consultorio, fecha_hora_inicio, fecha_hora_fin,
+                   estado, motivo_cancelacion, hora_llegada, id_cita_origen, canal_agendamiento, creado_por) VALUES
+    (1,  3, 1, '2026-10-12 09:00', '2026-10-12 09:30', 'ATENDIDA',     NULL, '2026-10-12 08:50', NULL, 'ADMISION',   1),
+    (2,  1, 2, '2026-10-14 09:00', '2026-10-14 09:30', 'EN_ESPERA',    NULL, '2026-10-14 08:40', NULL, 'TELEFONICO', 2),
+    (10, 2, 5, '2026-10-15 10:00', '2026-10-15 10:30', 'REPROGRAMADA', 'La paciente solicitó cambio de horario', NULL, NULL, 'ADMISION', 1),
+    (10, 2, 5, '2026-10-16 10:00', '2026-10-16 10:30', 'CONFIRMADA',   NULL, NULL,               7,    'ADMISION',   1);
+\end{lstlisting}
+
+\subsection{Resumen de los datos de prueba}
+
+Todos los registros son ficticios y fueron creados para este proyecto; no corresponden a
+pacientes, médicos ni personal reales. Los datos cubren todos los estados que definen las
+restricciones \texttt{CHECK}, de modo que cada pantalla del prototipo puede demostrarse con
+casos normales y de excepción.
+
+\begin{xltabular}{\linewidth}{|P{4.5cm}|P{2.6cm}|L|}
+  \caption{Registros de prueba por tabla principal}\label{tab:datos-prueba}\\
+  \hline
+  \rowcolor{guinda}\cab{Tabla principal} & \cab{N.° de registros} & \cab{Descripción de los datos ficticios} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Tabla principal} & \cab{N.° de registros} & \cab{Descripción de los datos ficticios} \\ \hline
+  \endhead
+  \tb{pacientes} & 10 &
+    9 con DNI y 1 con carné de extranjería; afiliados a Particular, 4 EPS y SOAT; 3 con alergias
+    registradas y 2 menores de edad. \\ \hline
+  \tb{convenios} & 7 &
+    Particular, las 5 EPS del caso (Rímac, Pacífico, Mapfre, Sanitas y La Positiva) y SOAT. \\ \hline
+  \tb{medicos}, \tb{especialidades}, \tb{consultorios} & 6, 8 y 12 &
+    6 médicos con CMP en 6 especialidades; los 12 consultorios de la sede (C01 a C12) en 2 pisos. \\ \hline
+  \tb{citas} & 11 &
+    Todos los estados: 4 atendidas, 3 confirmadas, 1 en espera, 1 cancelada con motivo,
+    1 reprogramada (con su cita nueva enlazada) y 1 inasistencia. \\ \hline
+  \tb{atenciones} & 7 &
+    5 de consulta externa y 2 de tópico de urgencias (una por SOAT); 1 en curso y 1 anulada
+    con su motivo. \\ \hline
+  \tb{triajes} & 6 &
+    Signos vitales completos; uno con presión de 145/92~mmHg para probar la alerta de la HU05. \\ \hline
+  \tb{atencion\_diagnosticos}, \tb{prescripciones} & 8 y 7 &
+    Diagnósticos principales, secundarios y presuntivos sobre un catálogo de 11 códigos CIE-10;
+    7 medicamentos recetados. \\ \hline
+  \tb{servicios\_medicos}, \tb{tarifarios\_servicios} & 9 y 14 &
+    Consultas, exámenes, imágenes y tópico; tarifas por convenio, incluida una vigencia
+    vencida para probar el historial de precios. \\ \hline
+  \tb{ordenes\_examen}, \tb{resultados} & 7 y 5 &
+    5 órdenes completadas, 1 en proceso y 1 solicitada; cada resultado con su hash SHA-256. \\ \hline
+  \tb{facturas}, \tb{factura\_detalle}, \tb{glosas} & 5, 10 y 5 &
+    Comprobantes de Particular, EPS y SOAT; una glosa en cada estado del ciclo (registrada,
+    sustentada, aceptada, rechazada y recuperada). \\ \hline
+  \tb{outbox\_notificaciones} & 7 &
+    2 recordatorios pendientes, 4 enviados y 1 fallido tras 3 intentos (HU07, escenario 2). \\ \hline
+  \tb{usuarios}, \tb{roles}, \tb{bitacora\_auditoria} & 16, 7 y 6 &
+    Un usuario por persona con contraseña bcrypt ficticia; la bitácora incluye un acceso
+    denegado y una anulación. \\ \hline
+  \textbf{Total} & \textbf{184} & \textbf{22 tablas con datos} \\ \hline
+\end{xltabular}
+
+\subsection{Evidencia de ejecución}
+
+Los tres scripts se ejecutaron con \texttt{psql} sobre una base de datos vacía, en el orden
+indicado y con la opción \texttt{ON\_ERROR\_STOP}. Terminaron sin errores, con el conteo de la
+tabla~\ref{tab:datos-prueba} y con las 10 pruebas de restricciones aprobadas. La salida del
+script de verificación se reproduce a continuación (abreviada en el conteo por tabla).
+
+% La ejecucion se hizo en PostgreSQL 17.6 local, compatible con el script para la version 16.
+% Si el docente exige una captura de pantalla, agregarla con:
+% \begin{figure}[!htbp]\centering\includegraphics[width=\linewidth]{captura-ejecucion.png}
+% \caption{Ejecución de los scripts en pgAdmin}\end{figure}
+\begin{lstlisting}[style=consola, caption={Salida de la ejecución de los scripts (PostgreSQL 17.6, compatible con la versión 16)}, label={lst:ejecucion}]
+$ psql -d sira -v ON_ERROR_STOP=1 -f database/01-esquema.sql      -> exit 0
+$ psql -d sira -v ON_ERROR_STOP=1 -f database/02-datos-prueba.sql -> BEGIN ... COMMIT, exit 0
+$ psql -d sira -v ON_ERROR_STOP=1 -f database/03-verificacion.sql
+
+         tabla         | registros
+-----------------------+-----------
+ roles                 |         7
+ usuarios              |        16
+ pacientes             |        10
+ citas                 |        11
+ atenciones            |         7
+ ...                   |       ...
+ bitacora_auditoria    |         6
+(22 filas)
+
+ numero_comprobante |  estado   | monto_total | monto_cubierto_seguro | copago_paciente
+--------------------+-----------+-------------+-----------------------+-----------------
+ LIQ-2026-000101    | PAGADA    |       80.00 |                 48.00 |           32.00
+ LIQ-2026-000102    | PAGADA    |      115.00 |                 75.00 |           40.00
+ LIQ-2026-000103    | OBSERVADA |      260.00 |                192.00 |           68.00
+ LIQ-2026-000104    | EMITIDA   |      190.00 |                190.00 |            0.00
+ LIQ-2026-000105    | EMITIDA   |      215.00 |                161.50 |           53.50
+(5 filas)
+
+NOTICE:  Prueba 1 correcta (RF-002): cita solapada del mismo médico rechazada
+NOTICE:  Prueba 2 correcta (RF-002): cita solapada en el mismo consultorio rechazada
+NOTICE:  Prueba 3 correcta (RNF-004): borrado físico de la atención rechazado
+NOTICE:  Prueba 4 correcta (HU08): anulación sin motivo de 20 caracteres rechazada
+NOTICE:  Prueba 5 correcta (RNF-002): la bitácora de auditoría no admite cambios
+NOTICE:  Prueba 6 correcta (HU03): paciente con documento duplicado rechazado
+NOTICE:  Prueba 7 correcta (HU04): segundo diagnóstico principal rechazado
+NOTICE:  Prueba 8 correcta (RF-006): monto cubierto + copago distinto del precio rechazado
+NOTICE:  Prueba 9 correcta (RF-006): tarifa con vigencia superpuesta rechazada
+NOTICE:  Prueba 10 correcta (HU05): signos vitales incoherentes rechazados
+\end{lstlisting}
+
+% =============================================================================
+\newpage
+\section{Prototipo UX/UI}\label{sec:prototipo}
+
+El prototipo cubre las pantallas de los dos módulos del Sprint~1 (M1 y M2), que son las de mayor
+uso diario, y la del tablero gerencial (M5). Todas comparten la misma barra superior, la misma
+paleta y la misma ubicación de las acciones, según el sistema de diseño definido en
+\nolinkurl{docs/entregable-1/07-prototipo-ux-ui/}: azul clínico para las acciones principales,
+rojo solo para alergias y alertas, ámbar para pendientes y verde para estados completados.
+
+\subsection{Pantallas del prototipo}
+
+La tarea principal del prototipo es \textbf{agendar una cita} (pantalla~2), porque concentra el
+problema operativo más visible del caso: 20 minutos de espera telefónica y un 18~\% de
+inasistencias. Su meta es la de la HU02 y el RNF-005: reservar en un máximo de 3 pasos y en
+menos de 3 minutos.
+
+\begin{xltabular}{\linewidth}{|P{4cm}|L|L|}
+  \caption{Pantallas del prototipo}\label{tab:pantallas}\\
+  \hline
+  \rowcolor{guinda}\cab{Pantalla} & \cab{Historia de usuario que atiende} & \cab{Tarea principal y tiempo medido} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Pantalla} & \cab{Historia de usuario que atiende} & \cab{Tarea principal y tiempo medido} \\ \hline
+  \endhead
+  \textbf{P1.} Registro de atención y HCE unificada \newline (Médico --- M1) &
+    HU01 (consulta de la HCE), HU04 (diagnóstico CIE-10 y receta), HU08 (anulación con motivo);
+    da acceso a HU09 (emitir orden) y HU10 (ver informe PDF) &
+    Registrar la atención de un paciente con triaje hecho: diagnóstico CIE-10, receta y firma.
+    Meta: expediente visible en $\leq 2$~s (RNF-001). Tiempo medido: tabla~\ref{tab:tiempo}. \\ \hline
+  \textbf{P2.} Agendamiento de citas en 3 pasos \newline (Admisión --- M2) &
+    HU02 (agendar sin solapamientos), HU03 (buscar o registrar al paciente en el paso 1),
+    HU07 (activar el recordatorio de 24~h); la misma matriz sirve para reprogramar (HU06) &
+    \textbf{Tarea principal:} reservar una cita para un paciente registrado. Meta: 3 pasos y
+    $\leq 3$~min (HU02, RNF-005). Tiempo medido: tabla~\ref{tab:tiempo}. \\ \hline
+  \textbf{P3.} Registro de triaje y signos vitales \newline (Enfermería --- M1) &
+    HU05 (signos vitales con alerta fuera de rango) &
+    Registrar los signos vitales de un paciente de la lista de espera y enviarlo al consultorio.
+    Meta: $< 2$~min (especificación 7.3). Tiempo medido: tabla~\ref{tab:tiempo}. \\ \hline
+  \textbf{P4.} Tablero gerencial de indicadores \newline (Gerencia --- M5) &
+    HU13 (indicadores de ocupación, espera, no-show e ingresos); muestra el seguimiento de
+    glosas de la HU12 &
+    Filtrar un mes y leer la ocupación de los 12 consultorios. Meta: tablero dibujado en
+    $\leq 3$~s (HU13). No se midió con usuarios en esta entrega. \\ \hline
+\end{xltabular}
+
+\subsection{Wireframes de baja fidelidad}
+
+Los wireframes fijan la estructura y la jerarquía de cada pantalla antes del diseño visual: usan
+solo escala de grises, cajas y líneas en lugar de texto, sin datos reales. Las figuras
+\ref{fig:wf-agenda}, \ref{fig:wf-hce} y \ref{fig:wf-triaje} corresponden a las pantallas P2, P1
+y P3; la pantalla P4 se diseñó directamente en alta fidelidad porque solo muestra información.
+
+% ---------------------------------------------------------------- Wireframe P2
+\begin{figure}[!htbp]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}
+  \draw[wfmarco] (0,0) rectangle (16,10.5);
+  \wfbarra{16}{10.5}{Usuario: Admisión \quad [Salir]}
+  % Indicador de pasos
+  \draw[black!40, thick] (1.0,9.35) -- (5.6,9.35) (6.4,9.35) -- (10.9,9.35);
+  \filldraw[black!70] (0.7,9.35) circle (0.25);
+  \node[font=\scriptsize\sffamily, text=white] at (0.7,9.35) {$\checkmark$};
+  \filldraw[draw=black!80, fill=white, thick] (6.0,9.35) circle (0.25);
+  \node[font=\scriptsize\bfseries\sffamily] at (6.0,9.35) {2};
+  \filldraw[draw=black!35, fill=black!8] (11.3,9.35) circle (0.25);
+  \node[font=\scriptsize\sffamily, text=black!50] at (11.3,9.35) {3};
+  \node[wftxt, fill=white] at (1.05,9.55) {\textbf{1. Identificar paciente}};
+  \node[wfmini, fill=white] at (1.05,9.15) {Completado};
+  \node[wftxt, fill=white] at (6.35,9.55) {\textbf{2. Especialidad, médico y turno}};
+  \node[wfmini, fill=white] at (6.35,9.15) {Paso activo};
+  \node[wftxt, fill=white, text=black!55] at (11.65,9.55) {\textbf{3. Cobertura y confirmación}};
+  \node[wfmini, fill=white] at (11.65,9.15) {Pendiente};
+  \draw[black!25] (0,8.8) -- (16,8.8);
+  % Panel izquierdo: filtros y matriz de horarios
+  \draw[wfpanel] (0.2,0.2) rectangle (10.6,8.6);
+  \node[wfmini] at (0.4,8.3) {ESPECIALIDAD};
+  \node[wfmini] at (3.8,8.3) {MÉDICO TRATANTE};
+  \node[wfmini] at (7.6,8.3) {FECHA};
+  \wfcampo{0.4}{7.55}{3.6}{8.1}{Seleccionar \quad $\blacktriangledown$}
+  \wfcampo{3.8}{7.55}{7.4}{8.1}{Seleccionar \quad $\blacktriangledown$}
+  \wfcampo{7.6}{7.55}{10.4}{8.1}{$\blacktriangleleft$ \ dd/mm/aaaa \ $\blacktriangleright$}
+  \draw[wfcaja] (0.4,7.0) rectangle ++(0.25,0.25); \node[wftxt] at (0.7,7.12) {Libre};
+  \draw[wfoscuro] (1.6,7.0) rectangle ++(0.25,0.25); \node[wftxt] at (1.9,7.12) {Seleccionado};
+  \draw[wfgris] (3.75,7.0) rectangle ++(0.25,0.25); \node[wftxt] at (4.05,7.12) {Ocupado};
+  \node[wfmini] at (6.0,7.12) {Consultorio \_\_ $\cdot$ Piso \_\_ $\cdot$ Cupos libres \_\_};
+  \node[wftit] at (0.4,6.55) {Matriz de disponibilidad de horarios};
+  \node[wftxt, font=\scriptsize\bfseries\sffamily] at (0.4,6.15) {Turno mañana};
+  \slotO{0.4}{5.1}{08:00} \slotO{2.4}{5.1}{08:30} \slotS{4.4}{5.1}{09:00}
+  \slotL{6.4}{5.1}{09:30} \slotL{8.4}{5.1}{10:00}
+  \slotL{0.4}{4.1}{10:30} \slotO{2.4}{4.1}{11:00} \slotL{4.4}{4.1}{11:30}
+  \slotL{6.4}{4.1}{12:00} \slotL{8.4}{4.1}{12:30}
+  \node[wftxt, font=\scriptsize\bfseries\sffamily] at (0.4,3.65) {Turno tarde};
+  \slotL{0.4}{2.6}{14:00} \slotO{2.4}{2.6}{14:30} \slotL{4.4}{2.6}{15:00}
+  \slotL{6.4}{2.6}{15:30} \slotO{8.4}{2.6}{16:00}
+  \slotL{0.4}{1.6}{16:30}
+  \draw[wfgris] (0.4,0.4) rectangle (10.4,1.0);
+  \node[wfmini, text=black!80] at (0.55,0.7) {(i) Los bloques ocupados no se pueden elegir: el sistema impide citas superpuestas.};
+  % Panel derecho: resumen de la cita
+  \draw[wfpanel] (10.8,0.2) rectangle (15.8,8.6);
+  \node[wftit] at (11.0,8.25) {Resumen de la cita};
+  \node[wfmini] at (11.0,7.9) {Paso 3 de 3: validación y confirmación};
+  \draw[wfcaja] (11.0,6.55) rectangle (15.6,7.65);
+  \node[wfmini] at (11.15,7.42) {PACIENTE};
+  \wflin{11.15}{7.05}{2.8}
+  \node[wfmini] at (11.15,6.75) {DNI 00000000 \quad Edad: \_\_ \quad HC: \_\_\_\_};
+  \draw[wfcaja] (11.0,5.2) rectangle (15.6,6.35);
+  \node[wfmini] at (11.15,6.12) {MÉDICO Y ESPECIALIDAD};
+  \wflin{11.15}{5.8}{3.0}
+  \node[wfmini] at (11.15,5.45) {UBICACIÓN: Consultorio \_\_ --- Piso \_\_};
+  \draw[wfoscuro] (11.0,4.5) rectangle (15.6,5.0);
+  \node[wfmini, text=white] at (11.15,4.75) {HORARIO: dd/mm/aaaa, hh:mm--hh:mm};
+  \draw[wfcaja] (11.0,2.45) rectangle (15.6,4.3);
+  \node[wftxt, font=\scriptsize\bfseries\sffamily] at (11.15,4.0) {Convenio: \_\_\_\_\_\_\_\_};
+  \node[wftxt] at (11.15,3.6) {Tarifa base};          \node[wftxt, anchor=east] at (15.45,3.6) {S/ 0.00};
+  \node[wftxt] at (11.15,3.25) {Cobertura (\_\_ \%)}; \node[wftxt, anchor=east] at (15.45,3.25) {-- S/ 0.00};
+  \draw[black!25] (11.15,3.0) -- (15.45,3.0);
+  \node[wftxt, font=\scriptsize\bfseries\sffamily] at (11.15,2.7) {Copago del paciente};
+  \node[wftxt, font=\footnotesize\bfseries\sffamily, anchor=east] at (15.45,2.7) {S/ 0.00};
+  \draw[wfcaja] (11.0,1.75) rectangle (15.6,2.25);
+  \node[wfmini, text=black] at (11.15,2.0) {Recordatorio 24 h (SMS / correo)};
+  \draw[draw=black!70, fill=black!60, rounded corners=0.13cm] (14.75,1.87) rectangle (15.4,2.13);
+  \filldraw[white] (15.27,2.0) circle (0.09);
+  \wfprimario{11.0}{1.0}{15.6}{1.55}{Confirmar cita y emitir ticket}
+  \wfboton{11.0}{0.35}{15.6}{0.85}{Cancelar / limpiar selección}
+\end{tikzpicture}}
+\caption{Wireframe de baja fidelidad --- P2. Agendamiento de citas en 3 pasos}
+\label{fig:wf-agenda}
+\end{figure}
+
+% ---------------------------------------------------------------- Wireframe P1
+\begin{figure}[!htbp]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}
+  \draw[wfmarco] (0,0) rectangle (16,11);
+  \wfbarra{16}{11}{Médico: Dr(a). \_\_\_\_\_ \quad [Salir]}
+  % Cabecera fija del paciente y alerta de alergias
+  \wfimagen{0.25}{9.35}{1.15}{10.25}
+  \node[wftxt, font=\footnotesize\bfseries\sffamily] at (1.35,10.05) {APELLIDOS, NOMBRES};
+  \draw[wfcaja, rounded corners=4pt] (5.2,9.88) rectangle (8.3,10.22);
+  \node[wfmini] at (5.3,10.05) {Convenio \_\_\_ $\cdot$ copago \_\_\%};
+  \node[wfmini] at (1.35,9.6) {DNI 00000000 $\cdot$ Sexo $\cdot$ Edad $\cdot$ Grupo sanguíneo $\cdot$ HC \_\_\_\_};
+  \draw[draw=black!80, fill=black!15, line width=1pt] (8.6,9.35) rectangle (15.8,10.25);
+  \node[wftxt, font=\scriptsize\bfseries\sffamily] at (8.75,10.0) {(!) ALERGIAS: \_\_\_\_\_\_\_\_\_\_\_\_};
+  \node[wfmini, text=black] at (8.75,9.6) {Antecedentes: \_\_\_\_\_\_\_\_\_\_\_\_\_\_};
+  \draw[black!25] (0,9.2) -- (16,9.2);
+  % Columna izquierda: linea de tiempo del expediente
+  \draw[wfpanel] (0.2,0.95) rectangle (5.6,9.0);
+  \node[wftit] at (0.4,8.7) {Expediente clínico unificado};
+  \wfcampo{0.4}{7.85}{5.4}{8.35}{Buscar diagnóstico, médico o fecha}
+  \draw[wfcaja, rounded corners=4pt] (0.4,7.3) rectangle (2.6,7.65);
+  \node[wfmini] at (0.5,7.47) {Últimos 12 meses $\blacktriangledown$};
+  \draw[black!35, thick] (0.6,7.05) -- (0.6,1.75);
+  \foreach \y/\tx in {7.05/Ambulatorio, 5.65/Receta, 4.25/Laboratorio, 2.85/Ambulatorio}{
+    \filldraw[black!55] (0.6,\y-0.15) circle (0.09);
+    \draw[wfcaja] (0.85,\y-1.2) rectangle (5.4,\y);
+    \node[wfmini] at (1.0,\y-0.2) {dd/mm/aaaa $\cdot$ hh:mm};
+    \draw[wfgris, rounded corners=3pt] (4.0,\y-0.32) rectangle (5.3,\y-0.08);
+    \node[wfmini, anchor=center] at (4.65,\y-0.2) {\tx};
+    \node[wftxt, font=\scriptsize\bfseries\sffamily] at (1.0,\y-0.52) {Especialidad (Dr. \_\_\_\_)};
+    \wflin{1.0}{\y-0.8}{3.4}
+    \node[wfmini] at (1.0,\y-1.03) {[Ver detalle / receta]};
+  }
+  \wfboton{0.4}{1.1}{5.4}{1.55}{Ver historial completo}
+  % Columna derecha: acto medico actual
+  \draw[wfpanel] (5.8,7.3) rectangle (15.8,9.0);
+  \node[wftit] at (6.0,8.75) {Signos vitales y triaje (solo lectura)};
+  \node[wfmini, anchor=east] at (15.6,8.75) {Tomado por: Enf. \_\_\_\_ a las hh:mm};
+  \foreach \x/\tx in {6.0/Presión arterial, 7.95/Frec. cardíaca, 9.9/Temperatura, 11.85/IMC, 13.8/Saturación O$_2$}{
+    \draw[wfcaja] (\x,7.45) rectangle ++(1.8,0.95);
+    \node[wfmini] at (\x+0.1,8.2) {\tx};
+    \node[wftxt, font=\footnotesize\bfseries\sffamily] at (\x+0.1,7.8) {\_\_\_};
+    \node[wfmini] at (\x+0.1,7.57) {estado};
+  }
+  \draw[wfpanel] (5.8,5.45) rectangle (15.8,7.1);
+  \node[wftit] at (6.0,6.85) {Motivo de consulta y examen clínico};
+  \draw[wfcaja] (6.0,5.6) rectangle (15.6,6.55);
+  \wflin{6.15}{6.3}{8.8} \wflin{6.15}{6.05}{9.0} \wflin{6.15}{5.8}{5.5}
+  \draw[wfpanel] (5.8,3.85) rectangle (15.8,5.25);
+  \node[wftit] at (6.0,5.0) {Diagnóstico CIE-10};
+  \node[wfmini, anchor=east] at (15.6,5.0) {Catálogo oficial};
+  \wfcampo{6.0}{4.35}{14.2}{4.75}{Buscar por código o descripción (autocompletado)}
+  \wfprimario{14.3}{4.35}{15.6}{4.75}{Agregar}
+  \draw[wfcaja, rounded corners=3pt] (6.0,3.95) rectangle (9.9,4.25);
+  \node[wfmini, text=black] at (6.1,4.1) {COD -- descripción [Principal] $\times$};
+  \draw[wfcaja, rounded corners=3pt] (10.1,3.95) rectangle (14.0,4.25);
+  \node[wfmini, text=black] at (10.2,4.1) {COD -- descripción [Secundario] $\times$};
+  \draw[wfpanel] (5.8,0.95) rectangle (15.8,3.65);
+  \node[wftit] at (6.0,3.4) {Prescripción médica (receta digital)};
+  \draw[wfgris] (6.0,2.75) rectangle (15.6,3.1);
+  \foreach \x/\tx in {6.1/Medicamento, 8.6/Presentación, 10.8/Frecuencia, 13.2/Duración, 14.7/Acciones}{
+    \node[wfmini, text=black] at (\x,2.92) {\textbf{\tx}};}
+  \foreach \y in {2.3, 1.75}{
+    \draw[black!20] (6.0,\y-0.2) -- (15.6,\y-0.2);
+    \wflin{6.1}{\y}{1.8} \wflin{8.6}{\y}{1.4} \wflin{10.8}{\y}{1.8} \wflin{13.2}{\y}{0.9}
+    \node[wfmini] at (14.7,\y) {[editar] [$\times$]};}
+  \node[wftxt] at (6.1,1.2) {+ Agregar medicamento};
+  % Barra de acciones
+  \draw[black!25] (0,0.8) -- (16,0.8);
+  \wfboton{0.2}{0.15}{4.0}{0.65}{Anular atención (con motivo)}
+  \node[wfmini] at (4.15,0.4) {Autoguardado hace \_ min};
+  \wfboton{6.8}{0.15}{10.0}{0.65}{Emitir orden de examen}
+  \wfboton{10.15}{0.15}{12.55}{0.65}{Guardar borrador}
+  \wfprimario{12.7}{0.15}{15.8}{0.65}{Firmar y finalizar}
+\end{tikzpicture}}
+\caption{Wireframe de baja fidelidad --- P1. Registro de atención y HCE unificada}
+\label{fig:wf-hce}
+\end{figure}
+
+% ---------------------------------------------------------------- Wireframe P3
+\begin{figure}[!htbp]
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}
+  \draw[wfmarco] (0,0) rectangle (16,10.5);
+  \wfbarra{16}{10.5}{Enfermería: Lic. \_\_\_\_\_ \quad [Salir]}
+  % Columna izquierda: sala de espera
+  \draw[wfpanel] (0.2,0.2) rectangle (5.6,9.7);
+  \node[wftit] at (0.4,9.4) {Sala de espera};
+  \draw[wfgris, rounded corners=4pt] (4.2,9.25) rectangle (5.4,9.55);
+  \node[wfmini, anchor=center, text=black] at (4.8,9.4) {\_ en cola};
+  \foreach \x/\an/\tx in {0.4/0.95/Todos, 1.45/1.15/Urgentes, 2.7/1.15/Pediatría, 3.95/1.1/Adultos}{
+    \draw[wfcaja, rounded corners=2pt] (\x,8.7) rectangle ++(\an,0.38);
+    \node[wfmini, text=black, anchor=center] at (\x+\an/2,8.89) {\tx};}
+  \wfcampo{0.4}{8.0}{5.4}{8.45}{Buscar por DNI, ticket o apellido}
+  \foreach \y/\es in {7.75/En atención, 6.3/Pendiente, 3.35/Pendiente, 1.92/En admisión}{
+    \draw[wfcaja] (0.4,\y-1.35) rectangle (5.4,\y);
+    \draw[wfgris] (0.55,\y-0.42) rectangle (1.15,\y-0.12);
+    \node[wfmini, text=black, anchor=center] at (0.85,\y-0.27) {T-00};
+    \node[wfmini] at (1.25,\y-0.27) {Espera: \_\_ min};
+    \draw[wfcaja, rounded corners=4pt] (3.9,\y-0.42) rectangle (5.25,\y-0.12);
+    \node[wfmini, anchor=center, text=black] at (4.575,\y-0.27) {\es};
+    \node[wftxt, font=\scriptsize\bfseries\sffamily] at (0.55,\y-0.68) {APELLIDOS, NOMBRES};
+    \node[wfmini] at (0.55,\y-0.95) {DNI 00000000 $\cdot$ edad $\cdot$ convenio};
+    \node[wfmini] at (0.55,\y-1.18) {Destino: Consultorio \_\_ \hfill $\rightarrow$};}
+  % Ticket urgente: borde grueso y boton para priorizar
+  \draw[draw=black!85, fill=black!8, line width=1.4pt] (0.4,3.45) rectangle (5.4,4.8);
+  \draw[wfoscuro] (0.55,4.38) rectangle (1.15,4.68);
+  \node[wfmini, text=white, anchor=center] at (0.85,4.53) {T-00};
+  \node[wfmini, text=black] at (1.25,4.53) {Espera: \_\_ min};
+  \draw[wfoscuro, rounded corners=4pt] (3.65,4.38) rectangle (5.25,4.68);
+  \node[wfmini, anchor=center, text=white] at (4.45,4.53) {(!) Urgente};
+  \node[wftxt, font=\scriptsize\bfseries\sffamily] at (0.55,4.12) {APELLIDOS, NOMBRES \ (!)};
+  \node[wfmini] at (0.55,3.85) {Motivo de alerta: \_\_\_\_\_\_\_\_};
+  \wfprimario{4.2}{3.55}{5.25}{3.8}{\tiny Priorizar}
+  \node[wfmini] at (0.4,0.32) {Tiempo promedio de espera: \_\_ min};
+  % Columna derecha: datos del paciente y formulario
+  \wfimagen{5.9}{8.6}{6.9}{9.6}
+  \node[wftxt, font=\footnotesize\bfseries\sffamily] at (7.1,9.4) {APELLIDOS, NOMBRES};
+  \node[wfmini] at (7.1,9.05) {DNI 00000000 $\cdot$ Sexo $\cdot$ Edad $\cdot$ HC \_\_\_\_ $\cdot$ Ticket T-00};
+  \draw[wfcaja, rounded corners=4pt] (7.1,8.6) rectangle (9.4,8.88);
+  \node[wfmini] at (7.2,8.74) {Convenio vigente};
+  \node[wfmini, anchor=east] at (15.7,9.4) {Derivación: Consultorio \_\_ (especialidad)};
+  \node[wfmini, anchor=east] at (15.7,9.05) {Registro: dd/mm/aaaa hh:mm};
+  \draw[black!25] (5.8,8.4) -- (16,8.4);
+  \node[wftit] at (5.95,8.1) {Signos vitales y triaje rápido};
+  \node[wfmini, anchor=east] at (15.7,8.1) {Los valores fuera de rango alertan al consultorio};
+  \foreach \x/\y/\tx/\un/\rf in {
+      5.95/5.85/Presión arterial/mmHg/{Ref.: $<$120/80},
+      9.25/5.85/Frecuencia cardíaca/lpm/{Ref.: 60--100},
+      12.55/5.85/Temperatura axilar/\textdegree C/{Ref.: 36.0--37.2},
+      5.95/3.75/Saturación O$_2$/\%/{Ref.: $\geq$ 95 \%},
+      9.25/3.75/Frecuencia respiratoria/rpm/{Ref.: 12--20}}{
+    \draw[wfcaja] (\x,\y) rectangle ++(3.15,1.95);
+    \node[wftxt, font=\scriptsize\bfseries\sffamily] at (\x+0.12,\y+1.68) {\tx};
+    \draw[wfgris, rounded corners=4pt] (\x+2.15,\y+0.1) rectangle (\x+3.0,\y+0.35);
+    \node[wfmini, anchor=center, text=black] at (\x+2.575,\y+0.225) {estado};
+    \draw[draw=black!55, fill=black!4] (\x+0.5,\y+0.65) rectangle (\x+2.0,\y+1.25);
+    \node[wftxt] at (\x+2.1,\y+0.95) {\un};
+    \draw[black!20] (\x+0.1,\y+0.45) -- (\x+3.05,\y+0.45);
+    \node[wfmini] at (\x+0.12,\y+0.22) {\rf};}
+  % Presion arterial: dos campos (sistolica / diastolica)
+  \fill[white] (6.4,6.47) rectangle (8.0,7.13);
+  \draw[draw=black!55, fill=black!4] (6.1,6.5) rectangle (6.85,7.1);
+  \node[font=\footnotesize\sffamily] at (7.025,6.8) {/};
+  \draw[draw=black!55, fill=black!4] (7.2,6.5) rectangle (7.95,7.1);
+  % Antropometria con IMC calculado
+  \draw[wfcaja] (12.55,3.75) rectangle ++(3.15,1.95);
+  \node[wftxt, font=\scriptsize\bfseries\sffamily] at (12.67,5.43) {Antropometría e IMC};
+  \draw[draw=black!55, fill=black!4] (12.7,4.55) rectangle (13.6,5.1); \node[wfmini] at (13.65,4.82) {kg};
+  \draw[draw=black!55, fill=black!4] (14.3,4.55) rectangle (15.2,5.1); \node[wfmini] at (15.25,4.82) {m};
+  \node[wfmini] at (12.7,5.2) {Peso}; \node[wfmini] at (14.3,5.2) {Talla};
+  \draw[wfgris] (12.7,3.9) rectangle (15.55,4.3);
+  \node[wfmini, text=black] at (12.8,4.1) {IMC: \_\_ (categoría)};
+  % Observaciones
+  \draw[wfcaja] (5.95,1.25) rectangle (15.7,3.5);
+  \node[wftxt, font=\scriptsize\bfseries\sffamily] at (6.1,3.25) {Observaciones de enfermería};
+  \node[wfmini, anchor=east] at (15.55,3.25) {Caracteres: \_\_\_/500};
+  \node[wfmini] at (6.1,2.9) {Inserción rápida:};
+  \foreach \x/\an/\tx in {7.9/1.9/+ Dolor precordial, 9.95/2.5/+ Dificultad respiratoria, 12.6/1.15/+ Mareos, 13.9/1.25/+ Alergia}{
+    \draw[wfcaja, rounded corners=4pt] (\x,2.77) rectangle ++(\an,0.27);
+    \node[wfmini, text=black] at (\x+0.07,2.905) {\tx};}
+  \draw[draw=black!45, fill=black!2] (6.1,1.4) rectangle (15.55,2.6);
+  \wflin{6.25}{2.3}{8.5} \wflin{6.25}{2.0}{7.0}
+  % Acciones
+  \wfboton{5.95}{0.3}{8.5}{0.95}{Reimprimir ticket}
+  \wfboton{8.7}{0.3}{10.3}{0.95}{Limpiar}
+  \wfprimario{10.5}{0.3}{15.7}{0.95}{Guardar triaje y enviar a consultorio}
+\end{tikzpicture}}
+\caption{Wireframe de baja fidelidad --- P3. Registro de triaje y signos vitales}
+\label{fig:wf-triaje}
+\end{figure}
+
+\clearpage
+\subsection{Prototipo navegable}
+
+Los wireframes se llevaron a alta fidelidad con el sistema de diseño SIRA (figuras
+\ref{fig:proto-agenda} a \ref{fig:proto-dashboard}). Las pantallas se enlazan según el flujo de
+la tabla~\ref{tab:flujo}, que recorre el ciclo completo de una atención: agendar, triar y atender.
+
+% TODO: publicar el prototipo navegable (por ejemplo, exportar las pantallas de Stitch a Figma y
+% enlazar los botones del flujo de la tabla tab:flujo) y pegar aqui el enlace publico.
+\begin{xltabular}{\linewidth}{|P{4.5cm}|L|}
+  \caption{Datos del prototipo navegable}\label{tab:prototipo}\\
+  \hline
+  \rowcolor{guinda}\cab{Elemento} & \cab{Detalle} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Elemento} & \cab{Detalle} \\ \hline
+  \endhead
+  Herramienta utilizada & Google Stitch para las pantallas de alta fidelidad, generadas a partir de
+                          la especificación de la sección 7 y revisadas por el equipo \\ \hline
+  \fila Enlace navegable & \\ \hline
+  Pantallas incluidas   & P1 a P4 (tabla~\ref{tab:pantallas}) \\ \hline
+\end{xltabular}
+
+\begin{xltabular}{\linewidth}{|P{0.8cm}|P{3.2cm}|L|P{3.2cm}|}
+  \caption{Flujo de navegación entre las pantallas del prototipo}\label{tab:flujo}\\
+  \hline
+  \rowcolor{guinda}\cab{N.°} & \cab{Pantalla de origen} & \cab{Acción del usuario} & \cab{Pantalla de destino} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{N.°} & \cab{Pantalla de origen} & \cab{Acción del usuario} & \cab{Pantalla de destino} \\ \hline
+  \endhead
+  1 & Inicio de sesión & El usuario ingresa sus credenciales; el sistema muestra solo el menú de su rol. & Inicio según el rol \\ \hline
+  2 & P2, paso 1 & Admisión busca al paciente por DNI y lo selecciona (o lo registra si no existe). & P2, paso 2 \\ \hline
+  3 & P2, paso 2 & Elige especialidad, médico y un bloque libre de la matriz. & P2, paso 3 \\ \hline
+  4 & P2, paso 3 & Revisa el copago, deja activo el recordatorio y pulsa ``Confirmar cita y emitir ticket''. & Ticket de la cita \\ \hline
+  5 & P3 & El día de la cita, la enfermera elige el ticket en espera, registra los signos vitales y pulsa ``Guardar triaje''. & Lista de espera del médico \\ \hline
+  6 & P1 & El médico abre al paciente desde su agenda, revisa alergias y triaje, registra diagnóstico y receta, y pulsa ``Firmar y finalizar''. & Agenda del médico \\ \hline
+  7 & Inicio (Gerencia) & La gerencia abre el tablero y filtra por mes, especialidad o convenio. & P4 \\ \hline
+\end{xltabular}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.95\linewidth]{AgendamientoCitasMedicas.png}
+  \caption{Prototipo --- P2. Agendamiento de citas, paso 2 activo con el resumen del paso 3}
+  \label{fig:proto-agenda}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.95\linewidth]{registroAtencionConsultaHCEunificada.png}
+  \caption{Prototipo --- P1. Registro de atención y HCE unificada}
+  \label{fig:proto-hce}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.95\linewidth]{RegistroTriajeSignosVitales.png}
+  \caption{Prototipo --- P3. Registro de triaje y signos vitales}
+  \label{fig:proto-triaje}
+\end{figure}
+
+\begin{figure}[!htbp]
+  \centering
+  \includegraphics[width=0.95\linewidth]{DashboardGerencial.png}
+  \caption{Prototipo --- P4. Tablero gerencial de indicadores}
+  \label{fig:proto-dashboard}
+\end{figure}
+
+\clearpage
+\subsection{Heurísticas de usabilidad aplicadas}
+
+\begin{xltabular}{\linewidth}{|P{5cm}|L|}
+  \caption{Heurísticas de Nielsen aplicadas en el prototipo}\label{tab:heuristicas}\\
+  \hline
+  \rowcolor{guinda}\cab{Heurística (Nielsen)} & \cab{Dónde se aplica en el prototipo} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Heurística (Nielsen)} & \cab{Dónde se aplica en el prototipo} \\ \hline
+  \endhead
+  Visibilidad del estado del sistema &
+    P2: el indicador de 3 pasos marca cuál está completado, activo o pendiente, y cada bloque
+    de la matriz muestra si está libre, seleccionado u ocupado. P1: aviso de último autoguardado.
+    P3: cada ticket muestra su tiempo de espera y su estado (pendiente, en atención,
+    urgente). \\ \hline
+  Prevención de errores &
+    P2: los bloques ocupados aparecen bloqueados y no se pueden elegir, y la base de datos
+    rechaza igualmente cualquier cita superpuesta. P1: la franja de alergias está siempre
+    visible sobre la receta; el diagnóstico se elige del catálogo CIE-10 en vez de escribirse;
+    anular exige un motivo. P3: el IMC se calcula solo y cada signo vital muestra su rango de
+    referencia. \\ \hline
+  Consistencia y estándares &
+    Las cuatro pantallas usan la misma barra superior, la misma paleta (rojo solo para alertas
+    clínicas) y el botón principal en la esquina inferior derecha. Se usan los términos del
+    personal de salud (CIE-10, triaje, copago, CMP), fechas dd/mm/aaaa y montos en soles. \\ \hline
+  Reconocer antes que recordar &
+    P1: la cabecera del paciente (documento, edad, convenio, alergias) queda fija mientras el
+    médico escribe. P2: el resumen lateral muestra todo lo elegido antes de confirmar.
+    P3: botones de inserción rápida para los síntomas frecuentes. \\ \hline
+  Ayudar a reconocer y recuperarse de errores &
+    P2: ``Cancelar / limpiar selección'' devuelve la matriz a su estado inicial sin perder al
+    paciente. P1: ``Guardar borrador'' conserva la atención antes de firmarla, y una atención
+    firmada se corrige con una anulación que deja el registro original. \\ \hline
+\end{xltabular}
+
+\subsection{Medición del tiempo de la tarea principal}
+
+% El tiempo debe medirse de verdad con un companero: no inventar este dato.
+% Procedimiento sugerido: un integrante que no diseno la pantalla hace la tarea en el
+% prototipo navegable; se cronometra desde que ve la pantalla de inicio de Admision hasta que
+% aparece el ticket de la cita, y se anota cada duda o error.
+La medición se hace en el prototipo navegable con un participante que no diseñó la pantalla.
+El cronómetro arranca cuando el participante ve la pantalla de inicio de su rol y se detiene
+cuando aparece la confirmación; se anotan las dudas y los errores para la siguiente iteración.
+
+\begin{xltabular}{\linewidth}{|L|P{2.6cm}|P{2cm}|P{2cm}|L|}
+  \caption{Medición del tiempo de la tarea principal}\label{tab:tiempo}\\
+  \hline
+  \rowcolor{guinda}\cab{Tarea principal} & \cab{Participante} & \cab{Meta} & \cab{Tiempo medido} & \cab{Observaciones} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Tarea principal} & \cab{Participante} & \cab{Meta} & \cab{Tiempo medido} & \cab{Observaciones} \\ \hline
+  \endhead
+  P2: agendar una cita de Pediatría para un paciente ya registrado & & 3 pasos y $\leq 3$~min & & \\ \hline
+  P3: registrar el triaje de un paciente en espera & & $< 2$~min & & \\ \hline
+\end{xltabular}
+
+% =============================================================================
+\newpage
+\section{Matriz de trazabilidad}\label{sec:trazabilidad}
+
+La matriz parte de las 14 historias del backlog (ERS, sección 3.7) y las lleva a la pantalla
+del paso~\ref{sec:prototipo}, al componente del paso~\ref{sec:componentes} y a las tablas del
+paso~\ref{sec:modelo}. Las historias del Sprint~2 que todavía no tienen pantalla propia se
+indican en la columna de observaciones.
+
+\subsection{\texorpdfstring{Matriz historia $\rightarrow$ pantalla $\rightarrow$ componente $\rightarrow$ tablas}{Matriz historia, pantalla, componente y tablas}}
+
+\begingroup\small
+\begin{xltabular}{\linewidth}{|P{2.4cm}|P{2.45cm}|P{2.25cm}|L|L|}
+  \caption{Matriz de trazabilidad de historias de usuario}\label{tab:trazabilidad}\\
+  \hline
+  \rowcolor{guinda}\cab{Historia de usuario} & \cab{Pantalla} & \cab{Componente} & \cab{Tablas} & \cab{Observaciones} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Historia de usuario} & \cab{Pantalla} & \cab{Componente} & \cab{Tablas} & \cab{Observaciones} \\ \hline
+  \endhead
+  HU01 Consulta de la HCE unificada &
+    P1: cabecera del paciente y expediente cronológico & M1, T1, T2 &
+    \tb{pacientes}, \tb{atenciones}, \tb{triajes}, \tb{atencion\_diagnosticos},
+    \tb{prescripciones}, \tb{resultados}, \tb{bitacora\_auditoria} &
+    El acceso de un rol no clínico se rechaza (403) y queda en la bitácora como
+    \tb{ACCESO\_DENEGADO}. \\ \hline
+  HU02 Agendamiento sin solapamientos &
+    P2: pasos 2 y 3 & M2 (M4 para el copago) &
+    \tb{citas}, \tb{medicos}, \tb{especialidades}, \tb{consultorios}, \tb{tarifarios\_servicios} &
+    Restricciones EXCLUDE por médico y por consultorio (pruebas 1 y 2). \\ \hline
+  HU03 Registro y búsqueda del paciente &
+    P2: paso 1 & M1, M4 &
+    \tb{pacientes}, \tb{convenios} &
+    Documento único por tipo y número (prueba 6). El formulario de paciente nuevo se abre
+    desde el paso 1. \\ \hline
+  HU04 Atención con CIE-10 y receta &
+    P1: diagnóstico, receta y ``Firmar y finalizar'' & M1 &
+    \tb{atenciones}, \tb{atencion\_diagnosticos}, \tb{diagnosticos\_cie10}, \tb{prescripciones} &
+    Un solo diagnóstico principal por atención (prueba 7). \\ \hline
+  HU05 Triaje y signos vitales &
+    P3 & M1 (M2 para el check-in) &
+    \tb{triajes}, \tb{atenciones}, \tb{citas} &
+    Rangos de signos vitales validados en la base (prueba 10). \\ \hline
+  HU06 Reprogramación y cancelación &
+    P2: matriz de horarios sobre una cita existente & M2, T3 &
+    \tb{citas}, \tb{outbox\_notificaciones} &
+    \tb{id\_cita\_origen} enlaza la cita nueva. Falta prototipar el diálogo de motivo. \\ \hline
+  HU07 Recordatorio a 24~h &
+    P2: interruptor del paso 3 & T3, M2 &
+    \tb{outbox\_notificaciones}, \tb{citas} &
+    El envío es un proceso en segundo plano sin pantalla propia. \\ \hline
+  HU08 Anulación lógica &
+    P1: ``Anular atención (con motivo)'' & M1, T2 &
+    \tb{atenciones}, \tb{bitacora\_auditoria} &
+    Sin DELETE (prueba 3); motivo de al menos 20 caracteres (prueba 4). \\ \hline
+  HU09 Órdenes de examen &
+    P1: ``Emitir orden de examen'' & M3 (M4 catálogo) &
+    \tb{ordenes\_examen}, \tb{servicios\_medicos} &
+    El diálogo de la orden aún no está prototipado (Sprint~2). \\ \hline
+  HU10 Resultados en $\leq 4$~h &
+    P1: tarjeta de laboratorio con ``Ver informe PDF'' & M3, T3 &
+    \tb{resultados}, \tb{ordenes\_examen}, \tb{outbox\_notificaciones} &
+    Falta la bandeja del laboratorio (Sprint~2). \\ \hline
+  HU11 Facturación por convenio &
+    Sin pantalla; el copago estimado se ve en P2, paso 3 & M4 &
+    \tb{facturas}, \tb{factura\_detalle}, \tb{tarifarios\_servicios}, \tb{convenios},
+    \tb{servicios\_medicos} &
+    Montos cuadrados por línea (prueba 8) y vigencias sin superponer (prueba 9). \\ \hline
+  HU12 Seguimiento de glosas &
+    P4: tabla de glosas & M4, T2 &
+    \tb{glosas}, \tb{facturas} &
+    El registro de una glosa nueva se prototipará en el Sprint~2. \\ \hline
+  HU13 Tablero gerencial &
+    P4 & M5 &
+    Solo lectura: \tb{citas}, \tb{consultorios}, \tb{especialidades}, \tb{atenciones},
+    \tb{factura\_detalle}, \tb{glosas}, \tb{convenios} &
+    No muestra datos clínicos de pacientes. \\ \hline
+  HU14 Portal del paciente &
+    Sin pantalla (condicional, RN-06) & M6 $\rightarrow$ M2, T1 &
+    \tb{citas} (canal PORTAL\_WEB), \tb{pacientes}, \tb{outbox\_notificaciones} &
+    Reutiliza las reglas de agenda de M2. \\ \hline
+\end{xltabular}
+\endgroup
+
+\subsection{Verificación inversa: de las tablas a las historias}
+
+% La guia pide verificar en ambas direcciones: que ninguna tabla quede sin una
+% historia que la justifique.
+Las 22 tablas del modelo tienen al menos una historia que las justifica; ninguna se creó sin un
+requerimiento detrás. Las de seguridad (\tb{usuarios} y \tb{roles}) responden al RNF-002, que
+aplica a todas las historias.
+
+\begingroup\small
+\begin{xltabular}{\linewidth}{|P{4cm}|L|L|}
+  \caption{Historias de usuario que justifican cada tabla}\label{tab:inversa}\\
+  \hline
+  \rowcolor{guinda}\cab{Tabla} & \cab{Historias de usuario que la justifican} & \cab{Observaciones} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Tabla} & \cab{Historias de usuario que la justifican} & \cab{Observaciones} \\ \hline
+  \endhead
+  \tb{pacientes} & HU01, HU03 (y HU02, HU14 al agendar) & M1 \\ \hline
+  \tb{atenciones} & HU01, HU04, HU08 & M1; anulación lógica \\ \hline
+  \tb{triajes} & HU05 & M1; una por atención \\ \hline
+  \tb{diagnosticos\_cie10} & HU04 & M1; catálogo \\ \hline
+  \tb{atencion\_diagnosticos} & HU04, HU01 & M1 \\ \hline
+  \tb{prescripciones} & HU04, HU01 & M1 \\ \hline
+  \tb{citas} & HU02, HU06, HU05 (check-in), HU14 & M2 \\ \hline
+  \tb{medicos} & HU02, HU04 & M2 \\ \hline
+  \tb{especialidades} & HU02, HU13 & M2; catálogo \\ \hline
+  \tb{consultorios} & HU02, HU13 & M2; los 12 consultorios \\ \hline
+  \tb{ordenes\_examen} & HU09, HU10 & M3 \\ \hline
+  \tb{resultados} & HU10, HU01 & M3 \\ \hline
+  \tb{convenios} & HU03, HU11 & M4; catálogo \\ \hline
+  \tb{servicios\_medicos} & HU09, HU11 & M4; catálogo \\ \hline
+  \tb{tarifarios\_servicios} & HU11 (y HU02 para el copago estimado) & M4 \\ \hline
+  \tb{facturas} & HU11, HU12 & M4 \\ \hline
+  \tb{factura\_detalle} & HU11, HU13 & M4 \\ \hline
+  \tb{glosas} & HU12, HU13 & M4 \\ \hline
+  \tb{outbox\_notificaciones} & HU07, HU06, HU10 & T3 \\ \hline
+  \tb{bitacora\_auditoria} & HU08, HU01 (escenario 2) & T2; inmutable \\ \hline
+  \tb{usuarios} & Todas (RNF-002); HU01 escenario 2 & T1 \\ \hline
+  \tb{roles} & Todas (RNF-002); HU01 escenario 2 & T1 \\ \hline
+\end{xltabular}
+\endgroup
+
+% =============================================================================
+\newpage
+\section*{Anexo A. Declaración de uso de herramientas de IA y de terceros}
+\addcontentsline{toc}{section}{Anexo A. Declaración de uso de herramientas de IA y de terceros}
+
+Conforme a la disposición de integridad académica del proyecto integrador, el equipo declara
+las herramientas de inteligencia artificial o de terceros utilizadas en este entregable. Todo
+el contenido declarado fue revisado por el equipo, que puede explicarlo.
+
+% TODO: completar "Revisado por" y agregar cualquier otra herramienta usada en los pasos 1 y 2.
+\begin{xltabular}{\linewidth}{|P{3.4cm}|L|P{3cm}|P{2.8cm}|}
+  \caption{Herramientas de IA y de terceros utilizadas}\label{tab:declaracion-ia}\\
+  \hline
+  \rowcolor{guinda}\cab{Herramienta} & \cab{Uso que se le dio} & \cab{Parte del entregable} & \cab{Revisado por} \\ \hline
+  \endfirsthead
+  \hline
+  \rowcolor{guinda}\cab{Herramienta} & \cab{Uso que se le dio} & \cab{Parte del entregable} & \cab{Revisado por} \\ \hline
+  \endhead
+  Google Stitch & Generación de las pantallas de alta fidelidad a partir de la especificación
+    escrita por el equipo & Paso 4 (figuras del prototipo) & \\ \hline
+  Claude (Anthropic) & Redacción de los pasos 3 a 5 a partir de los documentos del repositorio,
+    dibujo de los wireframes en TikZ y ejecución de los scripts SQL para la evidencia &
+    Pasos 3, 4 y 5 & \\ \hline
+  \fila & & & \\ \hline
+\end{xltabular}
+
+\end{document}
