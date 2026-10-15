@@ -51,9 +51,59 @@ El diseño de las interfaces de usuario traduce directamente los requerimientos 
 ---
 
 ### 7.1.2. Marcador de Imagen para el Documento
-![Pantalla1 -](registroAtencionConsultaHCEunificada.png)
+![image1](Mockup_Pantalla1_HCE.png)
 
 ---
+
+### 7.1.3. Prompt Detallado para Generar la Pantalla en Stitch IA
+
+> **INSTRUCCIONES PARA EL ESTUDIANTE:**  
+> Copia el siguiente texto íntegro en la caja de prompt de **Stitch IA** (o herramienta de generación de interfaces IA) para generar el mockup de alta fidelidad de la Pantalla 1.
+
+```text
+Create a modern, clean, high-fidelity medical desktop web application screen for the Electronic Health Record (EHR) and Medical Consultation module of "Clínica San Rafael S.A.C.". 
+
+Layout & Dimensions: Desktop widescreen (1440x900px), professional clinical SaaS interface. Light mode with white (#FFFFFF) and soft light slate (#F8FAFC) background, primary deep clinical teal/blue (#0A4D68 and #088395), dark navy text (#1E293B), subtle borders (#E2E8F0), and Inter/Roboto typography.
+
+1. TOP NAVIGATION & HEADER:
+- Deep teal header bar with "Clínica San Rafael" logo, "SIRA" title, breadcrumb "Consulta Externa > Cardiología > Atención en Curso".
+- Right side: Doctor profile "Dr. Carlos Mendoza (CMP: 48921)", active badge "Consultorio 04", and notification bell.
+
+2. PERSISTENT PATIENT SUMMARY BANNER (Top full-width card):
+- Patient avatar placeholder, patient name in bold 18px: "QUISPE ROJAS, MARÍA ELENA", "DNI: 45892014 | Femenino | 42 años | Tipo: O+".
+- Insurance Badge: Green pill badge "Pacífico Seguros (EPS Copago 15%)".
+- CRITICAL MEDICAL ALERT BANNER: Red highlight badge (#DC2626) with warning icon: "ALERGIAS: PENICILINA - SULFAS | HIPERTENSIÓN ARTERIAL CONTROLADA".
+
+3. MAIN CONTENT - TWO-COLUMN CLINICAL DASHBOARD:
+LEFT COLUMN (35% width, Timeline Feed):
+- Section title: "Expediente Clínico Unificado (Historial Multiespecialidad)" with search bar and date filter.
+- Chronological timeline cards:
+  * Card 1 (Active/Recent): "12/09/2026 - Medicina General (Dr. Ramos) - Diagnóstico: J00 Rinofaringitis aguda".
+  * Card 2: "15/05/2026 - Dermatología (Dra. Soto) - Diagnóstico: L20 Dermatitis atópica".
+  * Card 3: "04/02/2026 - Laboratorio Clínico: Perfil Lipídico Completo [PDF badge]".
+- Small button at bottom: "Ver historial completo (8 atenciones)".
+
+RIGHT COLUMN (65% width, Active Medical Encounter):
+- Card 1: "Signos Vitales y Triaje (Tomado por Enf. Rocío Paz a las 09:15 AM)":
+  * 4 quick stat pill boxes: "PA: 125/80 mmHg" (Normal), "FC: 76 bpm", "Temp: 36.7 °C", "IMC: 24.8 (Normal - 68 kg / 1.65 m)".
+- Card 2: "Motivo de Consulta y Examen Clínico":
+  * Multiline text input with placeholder text: "Paciente refiere cefalea matutina recurrente y mareos leves desde hace 3 días...".
+- Card 3: "Diagnóstico CIE-10":
+  * Search bar with active dropdown showing: "I10 - Hipertensión esencial (primaria)" selected with a checkmark badge.
+- Card 4: "Prescripción Médica y Receta Digital":
+  * Clean table with columns: "Medicamento", "Presentación / Dosis", "Frecuencia", "Duración", "Acciones".
+  * Row 1: "Losartán Potásico | 50 mg tableta | Cada 24 horas (Mañanas) | 30 días".
+  * Button: "+ Agregar Medicamento".
+- Card 5: "Indicaciones y Órdenes Auxiliares":
+  * Text area for patient dietary care, plus an outline button: "[+] Solicitar Orden de Laboratorio / Imágenes".
+
+4. BOTTOM ACTION TOOLBAR (Sticky footer):
+- Left: Red danger outline button "Anular Atención Médica (Con motivo)".
+- Right: Gray outline button "Guardar Borrador", and large primary teal filled button "Firmar y Concluir Consulta Médica (Firma Digital)".
+```
+
+--------------------------------------------------------------------------------
+
 ## 7.2. Pantalla 2 — Agendamiento de Citas Médicas en 3 Pasos con Bloqueo de Solapamientos (Admisión — M2)
 
 ### 7.2.1. Arquitectura de Información y Mapeo Funcional
@@ -86,9 +136,68 @@ El diseño de las interfaces de usuario traduce directamente los requerimientos 
 ---
 
 ### 7.2.2. Marcador de Imagen para el Documento
-![image2](AgendamientoCitasMedicas.png)
+![image2](Mockup_Pantalla2_Agendamiento.png)
 
 ---
+
+### 7.2.3. Prompt Detallado para Generar la Pantalla en Stitch IA
+
+> **INSTRUCCIONES PARA EL ESTUDIANTE:**  
+> Copia el siguiente texto íntegro en la caja de prompt de **Stitch IA** para generar el mockup de alta fidelidad de la Pantalla 2.
+
+```text
+Create a modern, ultra-clean desktop SaaS web interface for the Medical Appointment Scheduling Module of "Clínica San Rafael S.A.C." (SIRA System) designed for Reception and Admissions staff.
+
+Layout & Canvas: Desktop widescreen 1440x900px, 12-column grid layout, white and slate palette (#F8FAFC, #FFFFFF), primary deep medical teal (#0A4D68, #088395), emerald green for open slots (#10B981), disabled gray (#E2E8F0), crisp Inter typography.
+
+1. TOP HEADER & NAVIGATION:
+- Top bar with Clinic brand "Clínica San Rafael SIRA - Sede San Borja".
+- Operator indicator: "Admisión: Franz Inga (Caja/Ventanilla 2)" with status badge "En línea".
+- Navigation tabs: "Pacientes", "Agenda y Citas (Active)", "Caja y Copagos", "Reportes".
+
+2. THREE-STEP WIZARD PROGRESS BAR (Steering UI compliant with RNF-005: 3-step maximum booking):
+- Centered step indicator:
+  * Step 1 (Finished/Check icon): "1. Identificar Paciente"
+  * Step 2 (Active/Highlighted with blue ring): "2. Especialidad, Médico y Turno"
+  * Step 3 (Next): "3. Cobertura y Confirmación"
+
+3. SPLIT WORKSPACE (2/3 Grid Area + 1/3 Floating Confirmation Summary):
+
+LEFT/CENTER AREA (Filters & Availability Grid):
+- Top Filter Row:
+  * Dropdown 1: "Especialidad: Pediatría (12 consultorios)"
+  * Dropdown 2: "Médico: Dr. Jorge Valdivia (CMP: 39412)"
+  * Date Picker: "Miércoles, 14 de Octubre de 2026" with "< Hoy >" navigation buttons.
+- APPOINTMENT AVAILABILITY MATRIX (Time Slot Grid for Consultorio 02):
+  * Grid of modern interactive pill buttons grouped by Turno Mañana (08:00 - 13:00) and Turno Tarde (14:00 - 19:00).
+  * 08:00 AM: Disabled light gray with lock icon "Ocupado (Cita #849)"
+  * 08:30 AM: Disabled light gray "Ocupado"
+  * 09:00 AM: ACTIVE SELECTED (Deep teal filled with white text, checkmark): "09:00 AM - 09:30 AM (Seleccionado)"
+  * 09:30 AM: Light green background with green text and border: "09:30 AM (Libre)"
+  * 10:00 AM: Light green background "10:00 AM (Libre)"
+  * 10:30 AM: Light green background "10:30 AM (Libre)"
+  * 11:00 AM: Disabled light gray "Ocupado"
+  * Visual banner note below grid: "Sistema con bloqueo transaccional anti-solapamiento activado para 12 consultorios".
+
+RIGHT SIDEBAR (Floating Appointment Summary Card - Step 3 Review):
+- Card header: "Resumen de la Cita Médica"
+- Patient info snippet: "Paciente: BUSTAMANTE VEGA, LUCAS (DNI: 78945612)"
+- Doctor & Location: "Dr. Jorge Valdivia | Consultorio 02 - Piso 1"
+- Date & Time: "Miércoles 14 Oct 2026, 09:00 - 09:30 AM"
+- Insurance & Copay Calculation Breakdown:
+  * Modalidad: "EPS Pacífico - Plan Salud Total"
+  * Tarifa Base Servicio: "S/ 140.00"
+  * Cobertura Aseguradora (85%): "- S/ 119.00"
+  * Total Copago a Pagar por Paciente: "S/ 21.00" (Bold 20px teal text)
+- Notification Toggle Switch:
+  * Switch ON (Green): "Enviar recordatorio automático SMS / Correo 24h antes (+51 987 654 321)"
+- Action Buttons:
+  * Primary large button: "Confirmar Agendamiento y Emitir Comprobante (Enter)"
+  * Secondary button: "Cancelar / Limpiar Selección"
+```
+
+--------------------------------------------------------------------------------
+
 ## 7.3. Pantalla 3 (Complementaria) — Registro de Triaje y Signos Vitales (Enfermería — M1)
 
 ### 7.3.1. Arquitectura de Información y Mapeo Funcional
@@ -106,9 +215,46 @@ El diseño de las interfaces de usuario traduce directamente los requerimientos 
 ---
 
 ### 7.3.2. Marcador de Imagen para el Documento
-![image3](RegistroTriajeSignosVitales.png)
+![image3](Mockup_Pantalla3_Triaje.png)
 
 ---
+
+### 7.3.3. Prompt Detallado para Generar la Pantalla en Stitch IA
+
+> **INSTRUCCIONES PARA EL ESTUDIANTE:**  
+> Copia el siguiente texto íntegro en la caja de prompt de **Stitch IA** para generar el mockup de la Pantalla 3.
+
+```text
+Create a modern, clean, high-efficiency desktop medical UI screen for the Nurse Triage and Vitals Intake Module of "Clínica San Rafael S.A.C.".
+
+Theme: Healthcare SaaS dashboard, desktop 1440x900px, white and clean slate background (#F8FAFC, #FFFFFF), vibrant clinical teal (#088395), status badges, readable bold numbers, Inter font.
+
+1. TOP BAR:
+- "Clínica San Rafael - Módulo de Triaje y Enfermería (Sede San Borja)".
+- User: "Lic. Enf. Rocío Paz", "Tópico de Triaje A", Clock: "09:42 AM".
+
+2. TWO-PANEL SPLIT SCREEN:
+LEFT PANEL (40% width): "Pacientes en Sala de Espera para Triaje (8 en cola)"
+- Search bar for patient name or ticket number.
+- Patient queue list cards:
+  * Card 1 (Selected): "Ticket T-04 | HERRERA DÍAZ, JOSÉ (DNI: 41258963) | Destino: Consultorio 05 (Cardiología) | Espera: 8 min | Estado: [En Atención - Azul]".
+  * Card 2: "Ticket T-05 | LÓPEZ VEGA, ANA | Destino: Consultorio 02 (Pediatría) | Espera: 14 min | Estado: [Pendiente - Amarillo]".
+  * Card 3: "Ticket T-06 | CASTILLO M., RAÚL | Destino: Tópico de Urgencias | Espera: 2 min | Estado: [Prioridad Urgente - Rojo]".
+
+RIGHT PANEL (60% width): "Formulario Rápido de Signos Vitales - Paciente: HERRERA DÍAZ, JOSÉ"
+- Grid of 6 high-visibility measurement input cards with big bold numbers and units:
+  * Box 1: "Presión Arterial": Two inputs "120" / "80" mmHg (Status pill: "Normal").
+  * Box 2: "Frecuencia Cardíaca": Input "74" lpm with heart icon.
+  * Box 3: "Temperatura Corporal": Input "36.8" °C with thermometer icon.
+  * Box 4: "Saturación de Oxígeno (SpO2)": Input "98" % with pulse icon.
+  * Box 5: "Frecuencia Respiratoria": Input "18" rpm.
+  * Box 6: "Antropometría": Weight "75.0" kg, Height "1.72" m -> Auto-calculated chip: "IMC: 25.35 (Sobrepeso leve - Amarillo)".
+- Text area: "Observaciones de Enfermería: Paciente acude consciente y orientado, sin signos de dificultad respiratoria aguda".
+- Bottom action button: Full-width teal button "Guardar Triaje y Habilitar en Historia Clínica del Médico".
+```
+
+--------------------------------------------------------------------------------
+
 ## 7.4. Pantalla 4 (Complementaria) — Dashboard Gerencial de Indicadores Operativos (Gerencia Médica — M5)
 
 ### 7.4.1. Arquitectura de Información y Mapeo Funcional
@@ -130,9 +276,47 @@ El diseño de las interfaces de usuario traduce directamente los requerimientos 
 ---
 
 ### 7.4.2. Marcador de Imagen para el Documento
-![image4](DashboardGerencial.png)
-  
+![image4](Mockup_Pantalla4_Dashboard.png)
+
 ---
+
+### 7.4.3. Prompt Detallado para Generar la Pantalla en Stitch IA
+
+> **INSTRUCCIONES PARA EL ESTUDIANTE:**  
+> Copia el siguiente texto íntegro en la caja de prompt de **Stitch IA** para generar el mockup de la Pantalla 4.
+
+```text
+Create a modern executive analytics dashboard web application screen for the Medical Management and Operations Dashboard (M5 Module) of "Clínica San Rafael S.A.C.".
+
+Layout: Desktop widescreen 1440x900px, modern BI layout like Tableau/Metabase with healthcare aesthetic. Background #F8FAFC, white cards #FFFFFF with clean borders, deep navy/teal branding (#0A4D68), vibrant data viz colors (Emerald green #10B981, Amber #F59E0B, Crimson #EF4444, Indigo #6366F1), Inter font.
+
+1. HEADER & GLOBAL CONTROLS:
+- Title: "Dashboard Gerencial de Operaciones Clínicas - Sede San Borja".
+- Subtitle: "Métricas consolidadas de ocupación, tiempos de espera, inasistencia e ingresos".
+- Date Filter Pills: "Hoy | Últimos 7 días | Este Mes (Septiembre 2026 - Selected) | Rango Personalizado".
+- Secondary Filter: Dropdown "Todos los convenios (Particular, 5 EPS, SOAT)".
+
+2. ROW OF 4 EXECUTIVE KPI CARDS:
+- Card 1: "Ocupación de Consultorios (12 activos)": Big number "86.4%", subtitle badge "+8.2% vs. mes anterior (Verde)", progress bar showing capacity.
+- Card 2: "Tasa de Inasistencia (No-Show)": Big number "7.8%", green highlight text "-10.2% reducción desde línea base del 18% (Impacto recordatorios 24h)".
+- Card 3: "Tiempo Medio de Espera en Sala": Big number "14.2 min", trend indicator "-6 min de mejora".
+- Card 4: "Facturación Bruta Acumulada": Big number "S/ 248,520.00", subtitle "Recaudado en ventanilla y liquidaciones EPS".
+
+3. CHARTS GRID (2-Column Middle Row):
+- Left Chart Card (60% width): "Ocupación y Rendimiento por Consultorio (Consultorios 01 al 12)"
+  * Modern vertical bar chart showing percentage utilization of each of the 12 medical offices. Consultorios 01 to 04 (Cardiology/Peds) at >90%, others at 80%.
+- Right Chart Card (40% width): "Distribución de Ingresos por Modalidad de Cobertura"
+  * Modern donut chart: Particular (32% - Teal), Rímac EPS (28% - Blue), Pacífico EPS (22% - Indigo), Otras EPS (12% - Amber), SOAT (6% - Violet).
+
+4. BOTTOM TABLE: "Seguimiento de Glosas y Liquidaciones con Aseguradoras"
+- Table with columns: "Aseguradora / EPS", "Comprobantes Emitidos", "Monto Facturado", "Monto Glosado / Observado", "Glosas Recuperadas", "Estado".
+- Row 1: "Rímac EPS | 420 | S/ 68,400.00 | S/ 2,100.00 | S/ 1,850.00 (88%) | [En conciliación - Verde]".
+- Row 2: "Pacífico Seguros | 380 | S/ 54,200.00 | S/ 1,400.00 | S/ 1,200.00 (85%) | [Al día - Verde]".
+- Row 3: "SOAT La Positiva | 95 | S/ 24,100.00 | S/ 850.00 | S/ 850.00 (100%) | [Recuperado - Azul]".
+```
+
+--------------------------------------------------------------------------------
+
 ## 7.5. Flujo de Navegación del Prototipo (User Flow)
 
 La siguiente tabla describe formalmente la secuencia operativa mediante la cual los usuarios del sistema transitan a través de las pantallas principales del prototipo, validando el cumplimiento estricto de la regla de usabilidad en **máximo 3 pasos (RNF-005)** y la segregación de accesos por rol (RBAC):
