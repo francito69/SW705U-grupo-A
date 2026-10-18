@@ -1,0 +1,65 @@
+---
+config:
+  layout: elk
+  theme: default
+  flowchart:
+    wrappingWidth: 320
+---
+flowchart TB
+    web["Interfaz web adaptativa<br/>(SPA React 18 + TypeScript)"]
+
+    subgraph backend["Backend SIRA — FastAPI / Python 3.12"]
+        subgraph app["Capa de aplicación — API REST /api/v1"]
+            router["Routers REST y handlers<br/>de casos de uso"]
+            t1["T1 · Seguridad y control de acceso<br/>(JWT + RBAC)"]
+        end
+        subgraph dom["Módulos de dominio"]
+            m6["M6 · Portal del Paciente<br/>(condicional)"]
+            m5["M5 · Reportes Gerenciales"]
+            m4["M4 · Facturación y Convenios"]
+            m2["M2 · Agenda y Citas Médicas"]
+            m3["M3 · Laboratorio e Imágenes"]
+            m1["M1 · Historia Clínica<br/>Electrónica y Triaje"]
+        end
+        subgraph trans["Componentes transversales"]
+            t2["T2 · Auditoría<br/>(AuditService)"]
+            t3["T3 · Notificaciones<br/>(NotificationService + worker Outbox)"]
+        end
+    end
+
+    db[("PostgreSQL 16")]
+    files[("Almacenamiento privado<br/>de archivos (PDF / JPG)")]
+    ext["Proveedor externo<br/>de correo / SMS"]
+
+    web -->|"HTTPS · JSON · JWT"| router
+    router -->|"valida token y rol"| t1
+    router -->|"invoca servicios"| dom
+    m6 -->|"disponibilidad y reserva"| m2
+    m2 -->|"datos del paciente"| m1
+    m3 -->|"atención de origen"| m1
+    m4 -->|"exámenes realizados"| m3
+    m4 -->|"atención a liquidar"| m1
+    m5 -.->|"solo lectura"| m2
+    m5 -.->|"solo lectura"| m4
+    m5 -.->|"solo lectura"| m1
+    dom -->|"registra eventos (M1–M4)<br/>encola avisos (M2, M3)"| trans
+    backend -->|"SQLAlchemy · TCP 5432 (SSL)"| db
+    m3 -->|"guarda y lee resultados"| files
+    t3 -->|"HTTPS"| ext
+
+    classDef comp fill:#FFFFFF,stroke:#5B5B5B,color:#1E1E1E
+    classDef cliente fill:#EBF7F9,stroke:#088395,color:#1E1E1E
+    classDef infra fill:#E8EEF6,stroke:#36648B,color:#1E1E1E
+    classDef condicional fill:#FFFFFF,stroke:#5B5B5B,stroke-dasharray:5 5,color:#1E1E1E
+    classDef externo fill:#FFFFFF,stroke:#5B5B5B,stroke-dasharray:5 5,color:#1E1E1E
+
+    class router,t1,m5,m4,m2,m3,m1,t2,t3 comp
+    class web cliente
+    class db,files infra
+    class m6 condicional
+    class ext externo
+
+    style backend fill:#FFFFFF,stroke:#7B0D0D,stroke-width:2px,color:#7B0D0D
+    style app fill:#F7F7F7,stroke:#9A9A9A
+    style dom fill:#FFF8E7,stroke:#C9A227
+    style trans fill:#F1F5F9,stroke:#9A9A9A

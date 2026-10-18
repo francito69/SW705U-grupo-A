@@ -1,0 +1,29 @@
+%% Plan de release del sistema SIRA (Grupo A, SW705, ciclo 2026-2)
+flowchart TB
+    subgraph R1["Release 1 · HCE y Agenda"]
+        direction LR
+        S7("Semana 7<br/>Sprint Planning 1")
+        S8("Semana 8 · Examen parcial<br/>(Entregable 1)")
+        S9("Semanas 9–11 · SPRINT 1<br/>HCE + Agenda · 27 pts")
+        S12("Semana 12 · Review, Retro<br/>+ Sprint Planning 2")
+        S7 --> S8 --> S9 --> S12
+    end
+
+    subgraph R2["Release 2 · Laboratorio, Facturación y Reportes"]
+        direction LR
+        S13("Semanas 13–14 · SPRINT 2<br/>Integración y despliegue")
+        S15("Semana 15 · Cierre<br/>Informe final y manual")
+        S16("Semana 16 · Examen final<br/>(Entregable 2)")
+        S13 --> S15 --> S16
+    end
+
+    R1 --> R2
+
+    classDef sprint fill:#F4DCDC,stroke:#7A0C0C,stroke-width:1.5px,color:#1A1A1A
+    classDef examen fill:#E6E1E1,stroke:#7A0C0C,stroke-width:1.5px,color:#1A1A1A
+    classDef evento fill:#FFFFFF,stroke:#7A0C0C,stroke-width:1.5px,color:#1A1A1A
+    class S9,S13 sprint
+    class S8,S16 examen
+    class S7,S12,S15 evento
+    style R1 fill:#FBF8F3,stroke:#BFBFBF,color:#7A0C0C
+    style R2 fill:#FBF8F3,stroke:#BFBFBF,color:#7A0C0C

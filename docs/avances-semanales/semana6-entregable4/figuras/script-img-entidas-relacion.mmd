@@ -1,0 +1,262 @@
+---
+config:
+  layout: elk
+  theme: default
+---
+erDiagram
+    roles {
+        serial id_rol PK
+        varchar(30) nombre UK
+        varchar(150) descripcion
+    }
+    usuarios {
+        serial id_usuario PK
+        varchar(50) username UK
+        varchar(255) password_hash
+        varchar(150) email UK
+        int id_rol FK
+        boolean activo
+        timestamp creado_en
+    }
+    pacientes {
+        serial id_paciente PK
+        varchar(10) tipo_documento UK
+        varchar(15) numero_documento UK
+        varchar(100) nombres
+        varchar(60) apellido_paterno
+        varchar(60) apellido_materno
+        date fecha_nacimiento
+        char(1) sexo
+        varchar(20) telefono
+        varchar(150) email
+        varchar(200) direccion
+        int id_convenio FK
+        text antecedentes_medicos
+        text alergias
+        boolean activo
+        timestamp creado_en
+    }
+    atenciones {
+        serial id_atencion PK
+        int id_paciente FK
+        int id_medico FK
+        int id_cita FK, UK
+        varchar(20) tipo_atencion
+        varchar(12) estado
+        text motivo_consulta
+        text anamnesis
+        text indicaciones
+        timestamp inicio_consulta
+        timestamp finalizada_en
+        boolean anulado
+        text motivo_anulacion
+        int anulado_por FK
+        timestamp anulado_en
+        timestamp creado_en
+    }
+    triajes {
+        serial id_triaje PK
+        int id_atencion FK, UK
+        smallint presion_sistolica
+        smallint presion_diastolica
+        numeric temperatura
+        smallint frecuencia_cardiaca
+        smallint frecuencia_respiratoria
+        smallint saturacion_oxigeno
+        numeric peso
+        numeric talla
+        text observaciones
+        int id_enfermera FK
+        timestamp registrado_en
+    }
+    diagnosticos_cie10 {
+        varchar(10) codigo PK
+        varchar(255) descripcion
+    }
+    atencion_diagnosticos {
+        int id_atencion PK, FK
+        varchar(10) codigo_cie10 PK, FK
+        varchar(12) tipo
+    }
+    prescripciones {
+        serial id_prescripcion PK
+        int id_atencion FK
+        varchar(120) medicamento
+        varchar(80) presentacion
+        varchar(80) frecuencia
+        varchar(40) duracion
+    }
+    especialidades {
+        serial id_especialidad PK
+        varchar(60) nombre UK
+    }
+    medicos {
+        serial id_medico PK
+        varchar(10) cmp UK
+        varchar(100) nombres
+        varchar(120) apellidos
+        int id_especialidad FK
+        varchar(20) telefono
+        varchar(150) email
+        int id_usuario FK, UK
+        boolean activo
+    }
+    consultorios {
+        serial id_consultorio PK
+        varchar(10) numero UK
+        smallint piso
+        varchar(100) descripcion
+        boolean activo
+    }
+    citas {
+        serial id_cita PK
+        int id_paciente FK
+        int id_medico FK
+        int id_consultorio FK
+        timestamp fecha_hora_inicio
+        timestamp fecha_hora_fin
+        varchar(15) estado
+        text motivo_cancelacion
+        timestamp hora_llegada
+        int id_cita_origen FK, UK
+        varchar(12) canal_agendamiento
+        int creado_por FK
+        timestamp creado_en
+    }
+    ordenes_examen {
+        serial id_orden PK
+        varchar(20) codigo_orden UK
+        int id_atencion FK
+        int id_servicio FK
+        text indicaciones_clinicas
+        varchar(12) estado
+        timestamp fecha_solicitud
+    }
+    resultados {
+        serial id_resultado PK
+        int id_orden FK, UK
+        text informe_diagnostico
+        varchar(500) ruta_archivo_privado
+        char(64) hash_archivo
+        timestamp fecha_toma_muestra
+        timestamp fecha_resultado
+        int id_validador FK
+    }
+    convenios {
+        serial id_convenio PK
+        varchar(20) codigo_convenio UK
+        varchar(100) nombre_institucion
+        varchar(12) tipo_convenio
+        varchar(150) contacto_operativo
+        boolean activo
+    }
+    servicios_medicos {
+        serial id_servicio PK
+        varchar(20) codigo_servicio UK
+        varchar(150) nombre_servicio
+        varchar(15) tipo_servicio
+        numeric precio_base_particular
+        boolean activo
+    }
+    tarifarios_servicios {
+        serial id_tarifario PK
+        int id_servicio FK
+        int id_convenio FK
+        numeric precio_convenido
+        numeric porcentaje_cobertura
+        numeric copago_fijo
+        date vigente_desde
+        date vigente_hasta
+    }
+    facturas {
+        serial id_factura PK
+        varchar(25) numero_comprobante UK
+        int id_atencion FK, UK
+        int id_convenio FK
+        varchar(10) estado
+        int creado_por FK
+        timestamp fecha_emision
+    }
+    factura_detalle {
+        serial id_detalle PK
+        int id_factura FK
+        int id_servicio FK
+        int id_orden FK, UK
+        smallint cantidad
+        numeric precio_unitario
+        numeric monto_cubierto
+        numeric copago
+    }
+    glosas {
+        serial id_glosa PK
+        int id_factura FK
+        varchar(30) codigo_glosa
+        numeric monto_glosado
+        text motivo_observacion
+        text sustento
+        varchar(12) estado
+        date fecha_observacion
+        date fecha_resolucion
+        int registrado_por FK
+    }
+    outbox_notificaciones {
+        serial id_notificacion PK
+        int id_cita FK
+        varchar(20) tipo_evento
+        varchar(10) canal
+        varchar(150) destinatario
+        text mensaje
+        timestamp programado_para
+        varchar(10) estado
+        smallint intentos
+        text error_detalle
+        timestamp procesado_en
+        timestamp creado_en
+    }
+    bitacora_auditoria {
+        bigserial id_auditoria PK
+        int id_usuario FK
+        varchar(50) nombre_tabla
+        int id_registro_afectado
+        varchar(16) accion
+        inet direccion_ip
+        jsonb datos_anteriores
+        jsonb datos_nuevos
+        text motivo
+        timestamp fecha_hora
+    }
+
+    usuarios }o--|| roles : "id_rol"
+    pacientes }o--|| convenios : "id_convenio"
+    medicos }o--|| especialidades : "id_especialidad"
+    medicos |o--o| usuarios : "id_usuario"
+    citas }o--|| pacientes : "id_paciente"
+    citas }o--|| medicos : "id_medico"
+    citas }o--|| consultorios : "id_consultorio"
+    citas |o--o| citas : "id_cita_origen"
+    citas }o--|| usuarios : "creado_por"
+    atenciones }o--|| pacientes : "id_paciente"
+    atenciones }o--|| medicos : "id_medico"
+    atenciones |o--o| citas : "id_cita"
+    atenciones }o--o| usuarios : "anulado_por"
+    triajes |o--|| atenciones : "id_atencion"
+    triajes }o--|| usuarios : "id_enfermera"
+    atencion_diagnosticos }o--|| atenciones : "id_atencion"
+    atencion_diagnosticos }o--|| diagnosticos_cie10 : "codigo_cie10"
+    prescripciones }o--|| atenciones : "id_atencion"
+    tarifarios_servicios }o--|| servicios_medicos : "id_servicio"
+    tarifarios_servicios }o--|| convenios : "id_convenio"
+    ordenes_examen }o--|| atenciones : "id_atencion"
+    ordenes_examen }o--|| servicios_medicos : "id_servicio"
+    resultados |o--|| ordenes_examen : "id_orden"
+    resultados }o--|| usuarios : "id_validador"
+    facturas |o--|| atenciones : "id_atencion"
+    facturas }o--|| convenios : "id_convenio"
+    facturas }o--|| usuarios : "creado_por"
+    factura_detalle }o--|| facturas : "id_factura"
+    factura_detalle }o--|| servicios_medicos : "id_servicio"
+    factura_detalle |o--o| ordenes_examen : "id_orden"
+    glosas }o--|| facturas : "id_factura"
+    glosas }o--|| usuarios : "registrado_por"
+    outbox_notificaciones }o--o| citas : "id_cita"
+    bitacora_auditoria }o--|| usuarios : "id_usuario"

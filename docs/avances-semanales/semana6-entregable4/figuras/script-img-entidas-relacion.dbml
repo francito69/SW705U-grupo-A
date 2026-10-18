@@ -1,0 +1,325 @@
+Table roles [headercolor: #4B5563] {
+  id_rol serial [pk]
+  nombre varchar(30) [not null, unique]
+  descripcion varchar(150)
+}
+
+Table usuarios [headercolor: #4B5563] {
+  id_usuario serial [pk]
+  username varchar(50) [not null, unique]
+  password_hash varchar(255) [not null]
+  email varchar(150) [not null, unique]
+  id_rol int [not null]
+  activo boolean [not null]
+  creado_en timestamp [not null]
+}
+
+Table pacientes [headercolor: #1E5AA8] {
+  id_paciente serial [pk]
+  tipo_documento varchar(10) [not null]
+  numero_documento varchar(15) [not null]
+  nombres varchar(100) [not null]
+  apellido_paterno varchar(60) [not null]
+  apellido_materno varchar(60) [not null]
+  fecha_nacimiento date [not null]
+  sexo char(1) [not null]
+  telefono varchar(20) [not null]
+  email varchar(150)
+  direccion varchar(200)
+  id_convenio int [not null]
+  antecedentes_medicos text
+  alergias text
+  activo boolean [not null]
+  creado_en timestamp [not null]
+
+  indexes {
+    (tipo_documento, numero_documento) [unique]
+  }
+}
+
+Table atenciones [headercolor: #1E5AA8] {
+  id_atencion serial [pk]
+  id_paciente int [not null]
+  id_medico int [not null]
+  id_cita int [unique]
+  tipo_atencion varchar(20) [not null]
+  estado varchar(12) [not null]
+  motivo_consulta text
+  anamnesis text
+  indicaciones text
+  inicio_consulta timestamp
+  finalizada_en timestamp
+  anulado boolean [not null]
+  motivo_anulacion text
+  anulado_por int
+  anulado_en timestamp
+  creado_en timestamp [not null]
+}
+
+Table triajes [headercolor: #1E5AA8] {
+  id_triaje serial [pk]
+  id_atencion int [not null, unique]
+  presion_sistolica smallint [not null]
+  presion_diastolica smallint [not null]
+  temperatura numeric(4,1) [not null]
+  frecuencia_cardiaca smallint [not null]
+  frecuencia_respiratoria smallint
+  saturacion_oxigeno smallint
+  peso numeric(5,2) [not null]
+  talla numeric(3,2) [not null]
+  observaciones text
+  id_enfermera int [not null]
+  registrado_en timestamp [not null]
+}
+
+Table diagnosticos_cie10 [headercolor: #1E5AA8] {
+  codigo varchar(10) [pk]
+  descripcion varchar(255) [not null]
+}
+
+Table atencion_diagnosticos [headercolor: #1E5AA8] {
+  id_atencion int [not null]
+  codigo_cie10 varchar(10) [not null]
+  tipo varchar(12) [not null]
+
+  indexes {
+    (id_atencion, codigo_cie10) [pk]
+  }
+}
+
+Table prescripciones [headercolor: #1E5AA8] {
+  id_prescripcion serial [pk]
+  id_atencion int [not null]
+  medicamento varchar(120) [not null]
+  presentacion varchar(80) [not null]
+  frecuencia varchar(80) [not null]
+  duracion varchar(40) [not null]
+}
+
+Table especialidades [headercolor: #1E7B45] {
+  id_especialidad serial [pk]
+  nombre varchar(60) [not null, unique]
+}
+
+Table medicos [headercolor: #1E7B45] {
+  id_medico serial [pk]
+  cmp varchar(10) [not null, unique]
+  nombres varchar(100) [not null]
+  apellidos varchar(120) [not null]
+  id_especialidad int [not null]
+  telefono varchar(20)
+  email varchar(150)
+  id_usuario int [unique]
+  activo boolean [not null]
+}
+
+Table consultorios [headercolor: #1E7B45] {
+  id_consultorio serial [pk]
+  numero varchar(10) [not null, unique]
+  piso smallint [not null]
+  descripcion varchar(100)
+  activo boolean [not null]
+}
+
+Table citas [headercolor: #1E7B45] {
+  id_cita serial [pk]
+  id_paciente int [not null]
+  id_medico int [not null]
+  id_consultorio int [not null]
+  fecha_hora_inicio timestamp [not null]
+  fecha_hora_fin timestamp [not null]
+  estado varchar(15) [not null]
+  motivo_cancelacion text
+  hora_llegada timestamp
+  id_cita_origen int [unique]
+  canal_agendamiento varchar(12) [not null]
+  creado_por int [not null]
+  creado_en timestamp [not null]
+}
+
+Table ordenes_examen [headercolor: #C2410C] {
+  id_orden serial [pk]
+  codigo_orden varchar(20) [not null, unique]
+  id_atencion int [not null]
+  id_servicio int [not null]
+  indicaciones_clinicas text
+  estado varchar(12) [not null]
+  fecha_solicitud timestamp [not null]
+}
+
+Table resultados [headercolor: #C2410C] {
+  id_resultado serial [pk]
+  id_orden int [not null, unique]
+  informe_diagnostico text [not null]
+  ruta_archivo_privado varchar(500) [not null]
+  hash_archivo char(64) [not null]
+  fecha_toma_muestra timestamp [not null]
+  fecha_resultado timestamp [not null]
+  id_validador int [not null]
+}
+
+Table convenios [headercolor: #9D174D] {
+  id_convenio serial [pk]
+  codigo_convenio varchar(20) [not null, unique]
+  nombre_institucion varchar(100) [not null]
+  tipo_convenio varchar(12) [not null]
+  contacto_operativo varchar(150)
+  activo boolean [not null]
+}
+
+Table servicios_medicos [headercolor: #9D174D] {
+  id_servicio serial [pk]
+  codigo_servicio varchar(20) [not null, unique]
+  nombre_servicio varchar(150) [not null]
+  tipo_servicio varchar(15) [not null]
+  precio_base_particular numeric(10,2) [not null]
+  activo boolean [not null]
+}
+
+Table tarifarios_servicios [headercolor: #9D174D] {
+  id_tarifario serial [pk]
+  id_servicio int [not null]
+  id_convenio int [not null]
+  precio_convenido numeric(10,2) [not null]
+  porcentaje_cobertura numeric(5,2) [not null]
+  copago_fijo numeric(10,2) [not null]
+  vigente_desde date [not null]
+  vigente_hasta date
+}
+
+Table facturas [headercolor: #9D174D] {
+  id_factura serial [pk]
+  numero_comprobante varchar(25) [not null, unique]
+  id_atencion int [not null, unique]
+  id_convenio int [not null]
+  estado varchar(10) [not null]
+  creado_por int [not null]
+  fecha_emision timestamp [not null]
+}
+
+Table factura_detalle [headercolor: #9D174D] {
+  id_detalle serial [pk]
+  id_factura int [not null]
+  id_servicio int [not null]
+  id_orden int [unique]
+  cantidad smallint [not null]
+  precio_unitario numeric(10,2) [not null]
+  monto_cubierto numeric(10,2) [not null]
+  copago numeric(10,2) [not null]
+}
+
+Table glosas [headercolor: #9D174D] {
+  id_glosa serial [pk]
+  id_factura int [not null]
+  codigo_glosa varchar(30) [not null]
+  monto_glosado numeric(10,2) [not null]
+  motivo_observacion text [not null]
+  sustento text
+  estado varchar(12) [not null]
+  fecha_observacion date [not null]
+  fecha_resolucion date
+  registrado_por int [not null]
+}
+
+Table outbox_notificaciones [headercolor: #4B5563] {
+  id_notificacion serial [pk]
+  id_cita int
+  tipo_evento varchar(20) [not null]
+  canal varchar(10) [not null]
+  destinatario varchar(150) [not null]
+  mensaje text [not null]
+  programado_para timestamp [not null]
+  estado varchar(10) [not null]
+  intentos smallint [not null]
+  error_detalle text
+  procesado_en timestamp
+  creado_en timestamp [not null]
+}
+
+Table bitacora_auditoria [headercolor: #4B5563] {
+  id_auditoria bigserial [pk]
+  id_usuario int [not null]
+  nombre_tabla varchar(50) [not null]
+  id_registro_afectado int [not null]
+  accion varchar(16) [not null]
+  direccion_ip inet [not null]
+  datos_anteriores jsonb
+  datos_nuevos jsonb
+  motivo text
+  fecha_hora timestamp [not null]
+}
+
+Ref: usuarios.id_rol > roles.id_rol
+Ref: pacientes.id_convenio > convenios.id_convenio
+Ref: medicos.id_especialidad > especialidades.id_especialidad
+Ref: medicos.id_usuario - usuarios.id_usuario
+Ref: citas.id_paciente > pacientes.id_paciente
+Ref: citas.id_medico > medicos.id_medico
+Ref: citas.id_consultorio > consultorios.id_consultorio
+Ref: citas.id_cita_origen - citas.id_cita
+Ref: citas.creado_por > usuarios.id_usuario
+Ref: atenciones.id_paciente > pacientes.id_paciente
+Ref: atenciones.id_medico > medicos.id_medico
+Ref: atenciones.id_cita - citas.id_cita
+Ref: atenciones.anulado_por > usuarios.id_usuario
+Ref: triajes.id_atencion - atenciones.id_atencion
+Ref: triajes.id_enfermera > usuarios.id_usuario
+Ref: atencion_diagnosticos.id_atencion > atenciones.id_atencion
+Ref: atencion_diagnosticos.codigo_cie10 > diagnosticos_cie10.codigo
+Ref: prescripciones.id_atencion > atenciones.id_atencion
+Ref: tarifarios_servicios.id_servicio > servicios_medicos.id_servicio
+Ref: tarifarios_servicios.id_convenio > convenios.id_convenio
+Ref: ordenes_examen.id_atencion > atenciones.id_atencion
+Ref: ordenes_examen.id_servicio > servicios_medicos.id_servicio
+Ref: resultados.id_orden - ordenes_examen.id_orden
+Ref: resultados.id_validador > usuarios.id_usuario
+Ref: facturas.id_atencion - atenciones.id_atencion
+Ref: facturas.id_convenio > convenios.id_convenio
+Ref: facturas.creado_por > usuarios.id_usuario
+Ref: factura_detalle.id_factura > facturas.id_factura
+Ref: factura_detalle.id_servicio > servicios_medicos.id_servicio
+Ref: factura_detalle.id_orden - ordenes_examen.id_orden
+Ref: glosas.id_factura > facturas.id_factura
+Ref: glosas.registrado_por > usuarios.id_usuario
+Ref: outbox_notificaciones.id_cita > citas.id_cita
+Ref: bitacora_auditoria.id_usuario > usuarios.id_usuario
+
+TableGroup T1_Seguridad {
+  roles
+  usuarios
+}
+
+TableGroup M1_Historia_Clinica_y_Triaje {
+  pacientes
+  atenciones
+  triajes
+  diagnosticos_cie10
+  atencion_diagnosticos
+  prescripciones
+}
+
+TableGroup M2_Agenda_y_Citas {
+  especialidades
+  medicos
+  consultorios
+  citas
+}
+
+TableGroup M3_Laboratorio_e_Imagenes {
+  ordenes_examen
+  resultados
+}
+
+TableGroup M4_Facturacion_y_Convenios {
+  convenios
+  servicios_medicos
+  tarifarios_servicios
+  facturas
+  factura_detalle
+  glosas
+}
+
+TableGroup T2_T3_Auditoria_y_Notificaciones {
+  bitacora_auditoria
+  outbox_notificaciones
+}

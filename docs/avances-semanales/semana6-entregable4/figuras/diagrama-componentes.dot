@@ -1,0 +1,84 @@
+// Diagrama de componentes del sistema SIRA (Paso 1 - Guia Semana 6)
+// Generar:  dot -Tpdf diagrama-componentes.dot -o diagrama-componentes.pdf
+//           dot -Tpng -Gdpi=200 diagrama-componentes.dot -o diagrama-componentes.png
+digraph SIRA {
+  graph [
+    rankdir=TB, compound=true, newrank=true,
+    fontname="Arial", fontsize=13, labeljust=c,
+    nodesep=0.45, ranksep=0.55, pad=0.3,
+    label="SIRA — Diagrama de componentes",
+    labelloc=t
+  ];
+  node  [shape=component, style=filled, fillcolor="#FFFFFF", color="#5B5B5B",
+         fontname="Arial", fontsize=11, margin="0.18,0.08"];
+  edge  [fontname="Arial", fontsize=9, color="#4A4A4A", arrowsize=0.7];
+
+  // ------------------------------------------------------------ Cliente
+  web [label="Interfaz web adaptativa\n(SPA React 18 + TypeScript)", fillcolor="#EBF7F9", color="#088395"];
+
+  // ------------------------------------------------------------ Backend
+  subgraph cluster_backend {
+    labeljust=l;
+    label="Backend SIRA — FastAPI / Python 3.12";
+    style="rounded"; color="#7B0D0D"; penwidth=1.6; fontcolor="#7B0D0D";
+
+    subgraph cluster_app {
+      labeljust=l;
+      label="Capa de aplicación — API REST /api/v1";
+      style="rounded,filled"; fillcolor="#F7F7F7"; color="#9A9A9A"; fontcolor="#333333";
+      router [label="Routers REST y handlers\nde casos de uso"];
+      t1     [label="T1 · Seguridad y control de acceso\n(JWT + RBAC)", fillcolor="#F1F5F9"];
+    }
+
+    subgraph cluster_dom {
+      labeljust=l;
+      label="Módulos de dominio";
+      style="rounded,filled"; fillcolor="#FFF8E7"; color="#C9A227"; fontcolor="#333333";
+      m6 [label="M6 · Portal del Paciente\n(condicional)", style="dashed,filled"];
+      m5 [label="M5 · Reportes\nGerenciales"];
+      m4 [label="M4 · Facturación\ny Convenios"];
+      m2 [label="M2 · Agenda y\nCitas Médicas"];
+      m3 [label="M3 · Laboratorio\ne Imágenes"];
+      m1 [label="M1 · Historia Clínica\nElectrónica y Triaje"];
+    }
+
+    subgraph cluster_trans {
+      labeljust=l;
+      label="Componentes transversales";
+      style="rounded,filled"; fillcolor="#F1F5F9"; color="#9A9A9A"; fontcolor="#333333";
+      t2 [label="T2 · Auditoría\n(AuditService)"];
+      t3 [label="T3 · Notificaciones\n(NotificationService + worker Outbox)"];
+    }
+  }
+
+  // ------------------------------------------------------------ Infraestructura
+  db    [shape=cylinder, label="PostgreSQL 16", fillcolor="#E8EEF6", color="#36648B"];
+  files [shape=folder,   label="Almacenamiento privado\nde archivos (PDF / JPG)", fillcolor="#E8EEF6", color="#36648B"];
+  ext   [shape=box, style="dashed,rounded", label="Proveedor externo\nde correo / SMS"];
+
+  // ------------------------------------------------------------ Cliente -> API
+  web    -> router [label="  HTTPS · JSON · JWT"];
+  router -> t1     [label="  valida token y rol"];
+  router -> m2     [lhead=cluster_dom, label="  invoca servicios"];
+
+  // ------------------------------------------------------------ Dependencias entre modulos (sin ciclos)
+  m6 -> m2 [label=" disponibilidad\n y reserva"];
+  m2 -> m1 [label=" datos del\n paciente"];
+  m3 -> m1 [label=" atención\n de origen"];
+  m4 -> m3 [label=" exámenes\n realizados"];
+  m4 -> m1 [label=" atención\n a liquidar"];
+  m5 -> m2 [style=dashed, label=" solo lectura"];
+  m5 -> m4 [style=dashed, label=" solo lectura"];
+  m5 -> m1 [style=dashed, label=" solo lectura"];
+
+  // ------------------------------------------------------------ Modulos -> transversales
+  m1 -> t2 [ltail=cluster_dom, lhead=cluster_trans, label="  registra eventos (M1–M4)\n  encola avisos (M2, M3)"];
+
+  // ------------------------------------------------------------ Persistencia y servicios externos
+  t2 -> db    [ltail=cluster_backend, label="  SQLAlchemy · TCP 5432 (SSL)"];
+  m3 -> files [label="  guarda y lee\n  resultados"];
+  t3 -> ext   [label="  HTTPS"];
+
+  // ------------------------------------------------------------ Orden visual
+  {rank=same; db; files; ext;}
+}
