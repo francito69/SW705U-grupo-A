@@ -1,4 +1,4 @@
-# 🏥 Sistema de Información Clínico-Administrativo (SIRA) — Clínica San Rafael S.A.C.
+# Sistema de Información Clínico-Administrativo (SIRA) — Clínica San Rafael S.A.C.
 
 ![Universidad Nacional de Ingeniería](<https://img.shields.io/badge/Universidad-UNI%20--%20FIIS-blue?style=for-the-badge>)
 ![Curso](<https://img.shields.io/badge/Curso-SW705U%20Taller%20de%20Ingenier%C3%ADa%20de%20Software%20I-green?style=for-the-badge>)
@@ -9,7 +9,7 @@ Repositorio oficial del **Sistema de Información Clínico-Administrativo (SIRA)
 
 ---
 
-## 📋 Información Académica
+## Información Académica
 
 * **Universidad:** Universidad Nacional de Ingeniería (UNI)
 * **Facultad:** Facultad de Ingeniería Industrial y de Sistemas (FIIS)
@@ -20,7 +20,7 @@ Repositorio oficial del **Sistema de Información Clínico-Administrativo (SIRA)
 
 ---
 
-## 👥 Equipo de Desarrollo
+## Equipo de Desarrollo
 
 | N.° | Apellidos y Nombres                          | Correo Electrónico             | Rol Asignado                       |
 | :--: | :------------------------------------------- | :------------------------------ | :--------------------------------- |
@@ -30,7 +30,7 @@ Repositorio oficial del **Sistema de Información Clínico-Administrativo (SIRA)
 
 ---
 
-## 🎯 Descripción y Caso Empresarial
+## Descripción y Caso Empresarial
 
 La **Clínica San Rafael S.A.C.** (sede San Borja) afronta ineficiencias operativas y financieras por el uso de historias clínicas fragmentadas en papel/Excel, demoras de hasta 48 horas en entrega de resultados, una tasa de inasistencia a citas del 18% y conciliaciones manuales con 5 EPS/SOAT que generan glosas.
 
@@ -40,7 +40,7 @@ Desarrollar e implementar la plataforma web **SIRA** para centralizar la gestió
 
 ---
 
-## 🧩 Módulos del Sistema y Planificación
+## Módulos del Sistema y Planificación
 
 | Módulo                                            | Descripción Resumida                                                                       |      Prioridad / Fase      |
 | :------------------------------------------------- | :------------------------------------------------------------------------------------------ | :------------------------: |
@@ -53,31 +53,56 @@ Desarrollar e implementar la plataforma web **SIRA** para centralizar la gestió
 
 ---
 
-## 📁 Estructura del Repositorio
+## Estructura del Repositorio
 
 ```text
 .
-├── .github/                  # Workflows de CI/CD
-├── docs/                     # Documentación de Ingeniería
-│   ├── entregable-1/         # Documentación de Ingeniería (Semanas 2 a 8)
+├── database/
+│   ├── 01-esquema.sql
+│   ├── 02-datos-prueba.sql
+│   └── 03-verificacion.sql
+├── docs/
+│   ├── entregable-1/
 │   │   ├── 01-acta-constitucion.md
 │   │   ├── 02-documento-vision.md
 │   │   ├── 03-especificacion-requerimientos-ERS.md
 │   │   ├── 04-modelos-uml/
-│   │   ├── 05-arquitectura-SAD.md
+│   │   │   ├── 04-modelosUML.md
+│   │   │   ├── Actividades.png
+│   │   │   ├── CasosDeUso.png
+│   │   │   └── Clases.png
+│   │   ├── 05-arquitectura-SAD/
+│   │   │   └── 05-arquitectura-SAD.md
 │   │   ├── 06-modelo-base-datos/
+│   │   │   └── 06-modelo-base-datos.md
 │   │   ├── 07-prototipo-ux-ui/
-│   │   └── 08-plan-release-sprint-backlog.md
-│   ├── entregable-2/         # Producto y Cierre (Semanas 9 a 16)
+│   │   │   └── 07-prototipos-ux-ui.md
+│   │   ├── 08-plan-release-sprint-backlog.md
+│   │   └── Entregable1_SW705_GrupoA.docx
+│   ├── entregable-2/
 │   │   ├── 01-estandares-codigo-git.md
-│   │   ├── 02-pruebas-cobertura/
 │   │   ├── 03-metricas-dora.md
 │   │   ├── 04-manual-usuario.md
 │   │   └── 05-informe-final-cierre.md
-│   └── avances-semanales/    # Evidencias y reportes semanales
-├── src/                      # Código Fuente del Sistema SIRA
-│   ├── backend/              # API REST y Lógica de Negocio
-│   └── frontend/             # Interfaz Web Adaptativa
-├── tests/                    # Pruebas Unitarias e Integración
-└── README.md                 # Vista General del Proyecto
+│   ├── entregable-4/
+│   │   ├── Entregable4_SW705_GrupoA.tex
+│   │   ├── Guia_Practica_Semana6_SW705.tex
+│   │   ├── Guia_Practica_Semana6_SW705.pdf
+│   │   ├── diagrama-componentes.png
+│   │   ├── diagrama-componentes.pdf
+│   │   ├── modelo-entidad-relacion.png
+│   │   ├── modelo-entidad-relacion.pdf
+│   │   ├── figuras/
+│   │   └── imagenes-overleaf/
+│   └── entregable-5/
+│       ├── Entregable5_SW705_GrupoA.docx
+│       ├── diagramas/
+│       │   ├── plan-release.mmd
+│       │   ├── plan-release.png
+│       │   └── tablero-sprint1.png
+│       └── fuente/
+│           ├── generar_entregable5.js
+│           └── logo.png
+├── .gitignore
+└── README.md
 ```
