@@ -79,7 +79,7 @@ Desarrollar e implementar la plataforma web **SIRA** para centralizar la gestió
 │   │   │   └── 07-prototipos-ux-ui.md
 │   │   ├── 08-plan-release-sprint-backlog.md
 │   │   └── Entregable1_SW705_GrupoA.docx
-│   ├── entregable-2/
+│   ├── entregable-2/                 # plantillas vacías, pendientes del cierre
 │   │   ├── 01-estandares-codigo-git.md
 │   │   ├── 03-metricas-dora.md
 │   │   ├── 04-manual-usuario.md
@@ -94,15 +94,19 @@ Desarrollar e implementar la plataforma web **SIRA** para centralizar la gestió
 │   │   ├── modelo-entidad-relacion.pdf
 │   │   ├── figuras/
 │   │   └── imagenes-overleaf/
-│   └── entregable-5/
-│       ├── Entregable5_SW705_GrupoA.docx
-│       ├── diagramas/
-│       │   ├── plan-release.mmd
-│       │   ├── plan-release.png
-│       │   └── tablero-sprint1.png
-│       └── fuente/
-│           ├── generar_entregable5.js
-│           └── logo.png
+│   ├── entregable-5/
+│   │   ├── Entregable5_SW705_GrupoA.docx
+│   │   ├── diagramas/
+│   │   │   ├── plan-release.mmd
+│   │   │   ├── plan-release.png
+│   │   │   └── tablero-sprint1.png
+│   │   └── fuente/
+│   │       ├── generar_entregable5.js
+│   │       └── logo.png
+│   └── practicas/
+│       ├── semana-09-git/
+│       └── semana-10-ci/
+│           └── Guia_Practica_Semana10_SW705_GrupoA.pdf
 ├── .gitignore
 └── README.md
 ```
