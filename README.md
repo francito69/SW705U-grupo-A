@@ -85,8 +85,6 @@ Desarrollar e implementar la plataforma web **SIRA** para centralizar la gestió
 │   │   ├── 04-manual-usuario.md
 │   │   └── 05-informe-final-cierre.md
 │   ├── entregable-4/
-│   │   ├── Entregable4_SW705_GrupoA.tex
-│   │   ├── Guia_Practica_Semana6_SW705.tex
 │   │   ├── Guia_Practica_Semana6_SW705.pdf
 │   │   ├── diagrama-componentes.png
 │   │   ├── diagrama-componentes.pdf
