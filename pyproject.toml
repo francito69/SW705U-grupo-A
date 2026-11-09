@@ -1,0 +1,9 @@
+[project]
+name = "sira-backend"
+version = "0.1.0"
+description = "API REST del Sistema SIRA - Clínica San Rafael S.A.C. (SW705, Grupo A)"
+requires-python = ">=3.12"
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]

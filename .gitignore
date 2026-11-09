@@ -57,3 +57,9 @@ env/
 *.class
 target/
 .gradle/
+# Backend: base local de desarrollo, cobertura y cachés de herramientas
+*.db
+.coverage
+htmlcov/
+.pytest_cache/
+.ruff_cache/
