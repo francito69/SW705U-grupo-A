@@ -1,0 +1,26 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]          # ¿en qué rama?
+  pull_request:
+    branches: [ main ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:                         # nombre del job (será el check requerido)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Instalar dependencias
+        run: pip install -r requirements.txt -r requirements-dev.txt
+      - name: Revisar estilo con ruff
+        run: ruff check --select E4,E7,E9,F app tests
+      - name: Ejecutar pruebas con cobertura
+        run: pytest --cov=app --cov-fail-under=80
