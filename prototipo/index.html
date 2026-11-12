@@ -1,0 +1,807 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SIRA · Prototipo</title>
+<style>
+  :root {
+    --ink: #111;
+    --muted: #6b6b6b;
+    --line: #111;
+    --soft: #c8c8c8;
+    --fill: #efefef;
+    --paper: #fff;
+    --bg: #f7f7f5;
+    --note: #fff8c5;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font: 14px/1.45 ui-monospace, "Cascadia Mono", Consolas, "Courier New", monospace;
+  }
+  button, input, select, textarea { font: inherit; color: inherit; }
+  h1, h2, h3 { margin: 0; font-weight: 700; }
+  h1 { font-size: 18px; }
+  h2 { font-size: 16px; }
+  h3 { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; }
+  p { margin: 0; }
+
+  /* ---------- estructura ---------- */
+  .topbar {
+    display: flex; align-items: center; justify-content: space-between; gap: 12px;
+    border-bottom: 2px solid var(--line); background: var(--paper); padding: 10px 16px;
+  }
+  .logo { display: flex; align-items: center; gap: 10px; }
+  .logo-box {
+    width: 34px; height: 34px; border: 2px solid var(--line);
+    display: grid; place-items: center; font-weight: 700;
+  }
+  .who { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+  .layout { display: grid; grid-template-columns: 220px 1fr; min-height: calc(100vh - 56px); }
+  nav.side { border-right: 2px solid var(--line); background: var(--paper); padding: 12px 0; }
+  nav.side a {
+    display: block; padding: 9px 16px; color: var(--ink); text-decoration: none;
+    border-left: 4px solid transparent;
+  }
+  nav.side a small { display: block; color: var(--muted); font-size: 11px; }
+  nav.side a:hover { background: var(--fill); }
+  nav.side a.on { border-left-color: var(--ink); background: var(--fill); font-weight: 700; }
+  nav.side .sep { border-top: 1px dashed var(--soft); margin: 10px 16px; }
+  main { padding: 20px; min-width: 0; }
+  .page-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; }
+  .page-head p { color: var(--muted); font-size: 12px; }
+
+  /* ---------- piezas ---------- */
+  .box { border: 2px solid var(--line); background: var(--paper); padding: 14px; }
+  .box + .box { margin-top: 14px; }
+  .box > h3 { margin-bottom: 10px; }
+  .grid { display: grid; gap: 14px; }
+  .g2 { grid-template-columns: 1fr 1fr; }
+  .g3 { grid-template-columns: repeat(3, 1fr); }
+  .g4 { grid-template-columns: repeat(4, 1fr); }
+  .g-hce { grid-template-columns: 320px 1fr; align-items: start; }
+  .stack > * + * { margin-top: 10px; }
+  .row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+  .spread { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+  .muted { color: var(--muted); }
+  .small { font-size: 12px; }
+
+  .btn {
+    border: 2px solid var(--line); background: var(--paper); padding: 6px 12px;
+    cursor: pointer; border-radius: 0;
+  }
+  .btn:hover { background: var(--fill); }
+  .btn.primary { background: var(--ink); color: var(--paper); }
+  .btn.primary:hover { background: #333; }
+  .btn:disabled { opacity: .4; cursor: not-allowed; }
+  .btn.sm { padding: 2px 8px; font-size: 12px; }
+
+  label.f { display: block; font-size: 12px; color: var(--muted); }
+  label.f > span { display: block; margin-bottom: 3px; }
+  input[type=text], input[type=number], input[type=password], select, textarea {
+    width: 100%; border: 2px solid var(--line); background: var(--paper);
+    padding: 6px 8px; border-radius: 0; color: var(--ink);
+  }
+  textarea { min-height: 70px; resize: vertical; }
+  input:focus, select:focus, textarea:focus, .btn:focus-visible { outline: 3px solid #999; outline-offset: 1px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+  th { background: var(--fill); font-size: 12px; text-transform: uppercase; }
+  td.num, th.num { text-align: right; }
+
+  .tag { display: inline-block; border: 1px solid var(--line); padding: 0 6px; font-size: 11px; white-space: nowrap; }
+  .tag.dark { background: var(--ink); color: var(--paper); }
+  .tag.dash { border-style: dashed; color: var(--muted); }
+
+  .alert { border: 3px solid var(--ink); background: var(--ink); color: var(--paper); padding: 10px 14px; font-weight: 700; }
+  .warn { border: 2px dashed var(--ink); padding: 8px 12px; }
+
+  /* nota de diseño (post-it) */
+  .note {
+    background: var(--note); border: 1px solid #b9a800; padding: 8px 10px;
+    font-size: 12px; color: #3d3600;
+  }
+  .note b { display: block; margin-bottom: 2px; }
+  body.no-notes .note { display: none; }
+
+  /* placeholder tipo wireframe */
+  .ph {
+    border: 2px solid var(--line); min-height: 120px; position: relative; background: var(--paper);
+    background-image:
+      linear-gradient(to top right, transparent calc(50% - 1px), var(--soft) 50%, transparent calc(50% + 1px)),
+      linear-gradient(to bottom right, transparent calc(50% - 1px), var(--soft) 50%, transparent calc(50% + 1px));
+    display: grid; place-items: center; color: var(--muted); font-size: 12px;
+  }
+  .ph span { background: var(--paper); padding: 2px 6px; }
+
+  /* stepper */
+  .steps { display: grid; grid-template-columns: repeat(3, 1fr); border: 2px solid var(--line); margin-bottom: 14px; background: var(--paper); }
+  .steps div { padding: 8px 12px; border-right: 2px solid var(--line); color: var(--muted); }
+  .steps div:last-child { border-right: 0; }
+  .steps div.on { background: var(--ink); color: var(--paper); font-weight: 700; }
+  .steps div.ok { color: var(--ink); }
+
+  /* matriz de turnos */
+  .slots { overflow-x: auto; }
+  .slots table { min-width: 640px; }
+  .slots td { padding: 0; height: 36px; }
+  .slot {
+    width: 100%; height: 100%; min-height: 34px; border: 0; background: var(--paper);
+    cursor: pointer; font-size: 11px; border-radius: 0;
+  }
+  .slot:hover { background: var(--fill); }
+  .slot.busy {
+    cursor: not-allowed; color: var(--muted);
+    background: repeating-linear-gradient(45deg, var(--paper) 0 5px, var(--soft) 5px 6px);
+  }
+  .slot.sel { background: var(--ink); color: var(--paper); font-weight: 700; }
+
+  .kpi .val { font-size: 28px; font-weight: 700; margin: 4px 0; }
+  .bar-row { display: grid; grid-template-columns: 140px 1fr 48px; gap: 8px; align-items: center; margin-bottom: 6px; font-size: 12px; }
+  .bar { height: 16px; border: 1px solid var(--line); background: var(--paper); }
+  .bar i { display: block; height: 100%; background: var(--ink); }
+
+  .timeline { border-left: 2px solid var(--line); margin-left: 6px; padding-left: 14px; }
+  .timeline .it { position: relative; margin-bottom: 12px; }
+  .timeline .it::before { content: ""; position: absolute; left: -21px; top: 4px; width: 10px; height: 10px; background: var(--paper); border: 2px solid var(--line); }
+
+  .vitals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  .flag { font-weight: 700; }
+
+  .toast {
+    position: fixed; right: 16px; bottom: 16px; max-width: 380px; z-index: 20;
+    border: 2px solid var(--line); background: var(--paper); padding: 12px 14px;
+    box-shadow: 6px 6px 0 var(--ink);
+  }
+  .login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+  .login { width: 100%; max-width: 440px; }
+  .roles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .roles .btn { text-align: left; padding: 10px; }
+  .roles .btn small { display: block; color: inherit; opacity: .7; font-size: 11px; }
+  .roles .btn.on { background: var(--ink); color: var(--paper); }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; }
+    nav.side { border-right: 0; border-bottom: 2px solid var(--line); display: flex; overflow-x: auto; padding: 0; }
+    nav.side a { border-left: 0; border-bottom: 4px solid transparent; white-space: nowrap; }
+    nav.side a.on { border-bottom-color: var(--ink); }
+    nav.side .sep { display: none; }
+    main { padding: 16px; }
+    .g2, .g3, .g4, .g-hce { grid-template-columns: 1fr; }
+    .vitals { grid-template-columns: 1fr 1fr; }
+    .who .hide-sm { display: none; }
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+<script>
+/* =====================================================================
+   SIRA — Prototipo navegable (solo frontend, datos ficticios en memoria)
+   Flujo: Admisión -> Enfermería (triaje) -> Médico (HCE) -> Laboratorio
+          -> Facturación -> Reportes
+   ===================================================================== */
+
+// ---------------- Datos de ejemplo ----------------
+const CONVENIOS = {
+  PARTICULAR:   { nombre: "Particular",       cobertura: 0 },
+  EPS_RIMAC:    { nombre: "Rímac EPS",        cobertura: 0.80 },
+  EPS_PACIFICO: { nombre: "Pacífico EPS",     cobertura: 0.80 },
+  EPS_MAPFRE:   { nombre: "Mapfre Perú EPS",  cobertura: 0.75 },
+  EPS_SANITAS:  { nombre: "Sanitas Perú EPS", cobertura: 0.70 },
+  EPS_POSITIVA: { nombre: "La Positiva EPS",  cobertura: 0.75 },
+  SOAT:         { nombre: "SOAT",             cobertura: 1 },
+};
+const TARIFA_CONSULTA = 120;
+const EXAMENES = [
+  { cod: "LAB-HEM", nombre: "Hemograma completo", precio: 35 },
+  { cod: "LAB-GLU", nombre: "Glucosa en ayunas", precio: 15 },
+  { cod: "LAB-PER", nombre: "Perfil lipídico", precio: 45 },
+  { cod: "LAB-ORI", nombre: "Examen de orina", precio: 20 },
+  { cod: "IMG-RXT", nombre: "Rayos X de tórax", precio: 80 },
+  { cod: "IMG-ECO", nombre: "Ecografía abdominal", precio: 110 },
+];
+const CIE10 = [
+  ["I10", "Hipertensión esencial (primaria)"],
+  ["E11.9", "Diabetes mellitus tipo 2 sin complicaciones"],
+  ["J06.9", "Infección aguda de vías respiratorias superiores"],
+  ["K29.7", "Gastritis, no especificada"],
+  ["M54.5", "Lumbago no especificado"],
+  ["R51", "Cefalea"],
+  ["J45.9", "Asma, no especificada"],
+  ["N39.0", "Infección de vías urinarias, sitio no especificado"],
+];
+const MEDICOS = [
+  { id: 1, nombre: "Dra. Lucía Paredes",  esp: "Medicina General", cons: "C-01" },
+  { id: 2, nombre: "Dr. Jorge Salinas",   esp: "Medicina General", cons: "C-02" },
+  { id: 3, nombre: "Dr. Martín Quispe",   esp: "Cardiología",      cons: "C-05" },
+  { id: 4, nombre: "Dra. Ana Villanueva", esp: "Pediatría",        cons: "C-08" },
+  { id: 5, nombre: "Dr. Raúl Mendoza",    esp: "Traumatología",    cons: "C-10" },
+];
+const HORAS = ["08:00","08:30","09:00","09:30","10:00","10:30","11:00","11:30","12:00","12:30"];
+
+const state = {
+  rol: null,
+  notas: true,
+  pacientes: [
+    { dni: "45871236", nombre: "Rosa Huamán Torres",  edad: 54, sexo: "F", convenio: "EPS_RIMAC",  alergias: ["Penicilina", "AINEs"], antecedentes: "HTA diagnosticada en 2019. Madre con DM2.",
+      historial: [{ fecha: "2026-08-14", medico: "Dra. Lucía Paredes", dx: "I10 · Hipertensión esencial", nota: "Control. Losartán 50 mg c/24 h." },
+                  { fecha: "2026-05-02", medico: "Dr. Martín Quispe", dx: "R51 · Cefalea", nota: "Se descarta crisis hipertensiva." }] },
+    { dni: "70123456", nombre: "Carlos Rojas Díaz",   edad: 31, sexo: "M", convenio: "PARTICULAR", alergias: [], antecedentes: "Sin antecedentes relevantes.", historial: [] },
+    { dni: "41239876", nombre: "Elena Campos Ruiz",   edad: 67, sexo: "F", convenio: "EPS_PACIFICO", alergias: ["Sulfas"], antecedentes: "DM2 desde 2015. Insulina nocturna.",
+      historial: [{ fecha: "2026-09-20", medico: "Dr. Jorge Salinas", dx: "E11.9 · Diabetes mellitus tipo 2", nota: "HbA1c 7.8 %. Ajuste de dosis." }] },
+    { dni: "76543210", nombre: "Luis Ccori Mamani",   edad: 8,  sexo: "M", convenio: "SOAT", alergias: [], antecedentes: "Accidente de tránsito (SOAT) hace 2 semanas.", historial: [] },
+  ],
+  citas: [
+    { id: 1001, dni: "45871236", medicoId: 1, hora: "08:30", estado: "EN_ESPERA", triaje: { pa: "150/95", fc: 82, fr: 18, temp: 36.8, sat: 97, peso: 72, talla: 158 } },
+    { id: 1002, dni: "41239876", medicoId: 1, hora: "09:30", estado: "EN_ESPERA", triaje: { pa: "130/80", fc: 76, fr: 16, temp: 36.5, sat: 98, peso: 65, talla: 155 } },
+    { id: 1003, dni: "70123456", medicoId: 2, hora: "09:00", estado: "PROGRAMADA" },
+    { id: 1004, dni: "76543210", medicoId: 5, hora: "08:00", estado: "ATENDIDA", dx: "M54.5 · Lumbago no especificado" },
+  ],
+  ordenes: [
+    { id: 501, citaId: 1004, dni: "76543210", cod: "IMG-RXT", estado: "PENDIENTE", resultado: "" },
+  ],
+  facturas: [
+    { id: 9001, citaId: 1004, dni: "76543210", items: [["Consulta Traumatología", 120], ["Rayos X de tórax", 80]], estado: "PENDIENTE" },
+  ],
+  bitacora: [],
+  // estado de pantallas
+  ag: null,
+  triajeSel: null,
+  medicoSel: 1,
+  hce: null,
+  labSel: null,
+  toast: null,
+};
+let nextId = 2000;
+
+const ROLES = {
+  admision:   { nombre: "Admisión",       desc: "Recepción y citas",   home: "admision",   menu: ["admision", "pacientes"] },
+  enfermeria: { nombre: "Enfermería",     desc: "Triaje",              home: "enfermeria", menu: ["enfermeria"] },
+  medico:     { nombre: "Médico",         desc: "Consulta y HCE",      home: "medico",     menu: ["medico", "laboratorio"] },
+  laboratorio:{ nombre: "Laboratorio",    desc: "Órdenes y resultados",home: "laboratorio",menu: ["laboratorio"] },
+  caja:       { nombre: "Facturación",    desc: "Convenios y glosas",  home: "facturacion",menu: ["facturacion"] },
+  gerencia:   { nombre: "Gerencia",       desc: "Indicadores",         home: "reportes",   menu: ["reportes", "facturacion"] },
+  paciente:   { nombre: "Paciente",       desc: "Portal web",          home: "portal",     menu: ["portal"] },
+  todos:      { nombre: "Recorrido completo", desc: "Ver todos los módulos", home: "admision",
+                menu: ["admision", "pacientes", "enfermeria", "medico", "laboratorio", "facturacion", "reportes", "portal"] },
+};
+const MODULOS = {
+  admision:    { t: "Agendar cita",     m: "M2 · Agenda" },
+  pacientes:   { t: "Pacientes",        m: "M1 · Filiación" },
+  enfermeria:  { t: "Triaje",           m: "M1 · Enfermería" },
+  medico:      { t: "Agenda médica",    m: "M1 · HCE" },
+  laboratorio: { t: "Laboratorio",      m: "M3 · Lab e imágenes" },
+  facturacion: { t: "Facturación",      m: "M4 · Convenios" },
+  reportes:    { t: "Dashboard",        m: "M5 · Reportes" },
+  portal:      { t: "Portal paciente",  m: "M6 · Sprint 2" },
+};
+
+// ---------------- Utilidades ----------------
+const $ = (s, r = document) => r.querySelector(s);
+const esc = (v) => String(v ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const soles = (n) => "S/ " + Number(n).toFixed(2);
+const paciente = (dni) => state.pacientes.find((p) => p.dni === dni);
+const medico = (id) => MEDICOS.find((m) => m.id === Number(id));
+const examen = (cod) => EXAMENES.find((e) => e.cod === cod);
+const hoy = new Date().toLocaleDateString("es-PE", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+const note = (titulo, txt) => `<div class="note"><b>${titulo}</b>${txt}</div>`;
+const ESTADO_TXT = { PROGRAMADA: "Programada", EN_TRIAJE: "En triaje", EN_ESPERA: "Espera médico", EN_CONSULTA: "En consulta", ATENDIDA: "Atendida", NO_SHOW: "No asistió" };
+const estadoTag = (e) => `<span class="tag ${e === "ATENDIDA" || e === "COMPLETADO" || e === "ENVIADA" ? "dark" : ""} ${e === "NO_SHOW" || e === "GLOSADA" ? "dash" : ""}">${ESTADO_TXT[e] || e}</span>`;
+function log(acc) { state.bitacora.unshift({ t: new Date().toLocaleTimeString("es-PE"), rol: ROLES[state.rol]?.nombre, acc }); }
+function toast(html) { state.toast = html; render(); clearTimeout(toast._t); toast._t = setTimeout(() => { state.toast = null; render(); }, 4500); }
+function ocupado(medicoId, hora) { return state.citas.some((c) => c.medicoId === medicoId && c.hora === hora && c.estado !== "NO_SHOW"); }
+function liquidar(f) {
+  const p = paciente(f.dni); const conv = CONVENIOS[p.convenio];
+  const total = f.items.reduce((s, i) => s + i[1], 0);
+  const cubre = total * conv.cobertura;
+  return { total, cubre, copago: total - cubre, conv };
+}
+
+// ---------------- Router ----------------
+function go(view) { location.hash = "#/" + view; }
+window.addEventListener("hashchange", render);
+function currentView() {
+  const v = location.hash.replace("#/", "") || "login";
+  if (!state.rol) return "login";
+  if (v === "hce") return state.hce ? "hce" : "medico";
+  return ROLES[state.rol].menu.includes(v) ? v : ROLES[state.rol].home;
+}
+
+// ---------------- Render ----------------
+function render() {
+  const view = currentView();
+  document.body.classList.toggle("no-notes", !state.notas);
+  if (view === "login") { $("#app").innerHTML = viewLogin(); return; }
+  const r = ROLES[state.rol];
+  const active = view === "hce" ? "medico" : view;
+  $("#app").innerHTML = `
+    <header class="topbar">
+      <div class="logo"><div class="logo-box">S</div><div><h1>SIRA</h1><div class="small muted">Clínica San Rafael · Sede San Borja</div></div></div>
+      <div class="who">
+        <span class="hide-sm muted">${esc(hoy)}</span>
+        <label class="row small"><input type="checkbox" data-action="notas" ${state.notas ? "checked" : ""}> notas</label>
+        <span class="tag">${esc(r.nombre)}</span>
+        <button class="btn sm" data-action="logout">Salir</button>
+      </div>
+    </header>
+    <div class="layout">
+      <nav class="side">
+        ${r.menu.map((k) => `<a href="#/${k}" class="${k === active ? "on" : ""}">${MODULOS[k].t}<small>${MODULOS[k].m}</small></a>`).join("")}
+        <div class="sep"></div>
+        <a href="#/login" data-action="logout">Cambiar rol<small>volver al acceso</small></a>
+      </nav>
+      <main>${VIEWS[view]()}</main>
+    </div>
+    ${state.toast ? `<div class="toast" role="status">${state.toast}</div>` : ""}`;
+}
+
+// ---------------- Vistas ----------------
+function viewLogin() {
+  const sel = state._rolLogin || "todos";
+  return `
+  <div class="login-wrap"><div class="login">
+    <div class="box stack">
+      <div class="logo"><div class="logo-box">S</div><div><h1>SIRA</h1><div class="small muted">Sistema de Información Clínico-Administrativo</div></div></div>
+      <label class="f"><span>Usuario</span><input type="text" value="usuario.demo" aria-label="Usuario"></label>
+      <label class="f"><span>Contraseña</span><input type="password" value="********" aria-label="Contraseña"></label>
+      <div>
+        <div class="small muted" style="margin-bottom:6px">Ingresar como (simula el rol del token JWT):</div>
+        <div class="roles">
+          ${Object.entries(ROLES).map(([k, r]) => `<button class="btn ${k === sel ? "on" : ""}" data-action="pick-rol" data-rol="${k}">${r.nombre}<small>${r.desc}</small></button>`).join("")}
+        </div>
+      </div>
+      <button class="btn primary" style="width:100%" data-action="login">Ingresar</button>
+      ${note("Nota de diseño", "El backend real valida credenciales (bcrypt) y devuelve un JWT con el rol. El menú lateral se arma según ese rol (RBAC, RNF-002).")}
+    </div>
+  </div></div>`;
+}
+
+const VIEWS = {
+  admision() {
+    const ag = state.ag || (state.ag = { paso: 1, dni: "", p: null, buscado: false, esp: "Medicina General", medicoId: null, hora: null });
+    const steps = ["1. Paciente", "2. Turno", "3. Confirmar"]
+      .map((s, i) => `<div class="${ag.paso === i + 1 ? "on" : ag.paso > i + 1 ? "ok" : ""}">${ag.paso > i + 1 ? "✓ " : ""}${s}</div>`).join("");
+    let body = "";
+    if (ag.paso === 1) {
+      body = `
+      <div class="grid g2">
+        <div class="box stack">
+          <h3>Buscar paciente</h3>
+          <div class="row"><input type="text" id="dni" placeholder="DNI (8 dígitos)" value="${esc(ag.dni)}" style="flex:1" maxlength="8">
+          <button class="btn primary" data-action="buscar">Buscar</button></div>
+          <div class="small muted">Prueba: 45871236 · 70123456 · 41239876 · 76543210 · o un DNI nuevo</div>
+          ${ag.p ? fichaPaciente(ag.p) + `<button class="btn primary" data-action="ag-next">Continuar →</button>` : ""}
+          ${ag.buscado && !ag.p ? `
+            <div class="warn stack">
+              <b>No existe un paciente con DNI ${esc(ag.dni)}</b>
+              <label class="f"><span>Nombres y apellidos</span><input type="text" id="np-nombre"></label>
+              <div class="grid g2">
+                <label class="f"><span>Edad</span><input type="number" id="np-edad" min="0"></label>
+                <label class="f"><span>Convenio</span><select id="np-conv">${Object.entries(CONVENIOS).map(([k, c]) => `<option value="${k}">${c.nombre}</option>`).join("")}</select></label>
+              </div>
+              <button class="btn" data-action="registrar">Registrar y continuar</button>
+            </div>` : ""}
+        </div>
+        <div class="stack">
+          ${note("Paso 1 de 3 (RNF-005)", "La búsqueda por DNI usa un índice en PostgreSQL y debe responder en menos de 0,5 s. Si el paciente no existe, se registra aquí mismo sin cambiar de pantalla.")}
+          <div class="box"><h3>Citas de hoy</h3>${tablaCitas(state.citas)}</div>
+        </div>
+      </div>`;
+    }
+    if (ag.paso === 2) {
+      const esps = [...new Set(MEDICOS.map((m) => m.esp))];
+      const meds = MEDICOS.filter((m) => m.esp === ag.esp);
+      body = `
+      <div class="box stack">
+        <div class="spread"><h3>Disponibilidad · ${esc(ag.p.nombre)}</h3>
+          <label class="f" style="min-width:220px"><span>Especialidad</span><select id="esp" data-action="esp">${esps.map((e) => `<option ${e === ag.esp ? "selected" : ""}>${e}</option>`).join("")}</select></label></div>
+        <div class="slots"><table>
+          <tr><th>Médico</th>${HORAS.map((h) => `<th>${h}</th>`).join("")}</tr>
+          ${meds.map((m) => `<tr><td style="padding:6px 8px"><b>${esc(m.nombre)}</b><div class="small muted">${m.cons}</div></td>
+            ${HORAS.map((h) => {
+              const b = ocupado(m.id, h); const s = ag.medicoId === m.id && ag.hora === h;
+              return `<td><button class="slot ${b ? "busy" : ""} ${s ? "sel" : ""}" ${b ? "disabled aria-label='ocupado'" : ""} data-action="slot" data-m="${m.id}" data-h="${h}">${s ? "ELEGIDO" : b ? "ocupado" : "libre"}</button></td>`;
+            }).join("")}</tr>`).join("")}
+        </table></div>
+        <div class="spread">
+          <button class="btn" data-action="ag-back">← Atrás</button>
+          <button class="btn primary" data-action="ag-next" ${ag.hora ? "" : "disabled"}>Continuar →</button>
+        </div>
+      </div>
+      <div class="box" style="border:0;background:none;padding:0">${note("Paso 2 de 3 · bloqueo de solapamientos (RF-002)", "Los turnos rayados ya están tomados y no se pueden elegir. En el sistema real la API vuelve a validar el turno al confirmar, para cubrir el caso de dos recepcionistas reservando a la vez.")}</div>`;
+    }
+    if (ag.paso === 3) {
+      const m = medico(ag.medicoId); const conv = CONVENIOS[ag.p.convenio];
+      const cubre = TARIFA_CONSULTA * conv.cobertura;
+      body = `
+      <div class="grid g2">
+        <div class="box stack">
+          <h3>Resumen de la cita</h3>
+          <table>
+            <tr><th>Paciente</th><td>${esc(ag.p.nombre)} · DNI ${ag.p.dni}</td></tr>
+            <tr><th>Médico</th><td>${esc(m.nombre)} · ${m.esp}</td></tr>
+            <tr><th>Fecha / hora</th><td>Hoy · ${ag.hora}</td></tr>
+            <tr><th>Consultorio</th><td>${m.cons}</td></tr>
+            <tr><th>Convenio</th><td>${conv.nombre} (cubre ${Math.round(conv.cobertura * 100)} %)</td></tr>
+            <tr><th>Tarifa</th><td>${soles(TARIFA_CONSULTA)}</td></tr>
+            <tr><th>Copago paciente</th><td><b>${soles(TARIFA_CONSULTA - cubre)}</b></td></tr>
+          </table>
+          <label class="row small"><input type="checkbox" checked> Enviar recordatorio por SMS/WhatsApp 24 h antes</label>
+          <div class="spread">
+            <button class="btn" data-action="ag-back">← Atrás</button>
+            <button class="btn primary" data-action="confirmar">Confirmar cita</button>
+          </div>
+        </div>
+        <div class="stack">
+          ${note("Paso 3 de 3", "El copago sale del tarifario del convenio (M4). Al confirmar se guarda la cita y se deja el recordatorio en la tabla outbox_notificaciones (RF-003), que apunta a bajar el no-show del 18 %.")}
+          <div class="ph" style="min-height:160px"><span>[ ticket de cita imprimible ]</span></div>
+        </div>
+      </div>`;
+    }
+    return `
+      <div class="page-head"><div><h2>Agendar cita médica</h2><p>Admisión · máximo 3 pasos</p></div>
+        ${ag.paso > 1 ? `<button class="btn sm" data-action="ag-reset">Cancelar</button>` : ""}</div>
+      <div class="steps">${steps}</div>
+      ${body}`;
+  },
+
+  pacientes() {
+    return `
+      <div class="page-head"><div><h2>Pacientes</h2><p>Padrón de filiación</p></div></div>
+      <div class="box">
+        <table>
+          <tr><th>DNI</th><th>Paciente</th><th>Edad</th><th>Convenio</th><th>Alergias</th><th>Atenciones</th></tr>
+          ${state.pacientes.map((p) => `<tr><td>${p.dni}</td><td>${esc(p.nombre)}</td><td>${p.edad}</td><td>${CONVENIOS[p.convenio].nombre}</td>
+            <td>${p.alergias.length ? p.alergias.map((a) => `<span class="tag dark">${esc(a)}</span>`).join(" ") : `<span class="muted">—</span>`}</td><td class="num">${p.historial.length}</td></tr>`).join("")}
+        </table>
+      </div>
+      <div class="box" style="border:0;background:none;padding:0">${note("Ley N.° 29733", "Admisión solo ve los datos de filiación. Diagnósticos y notas clínicas quedan restringidos al rol Médico.")}</div>`;
+  },
+
+  enfermeria() {
+    const cola = state.citas.filter((c) => c.estado === "PROGRAMADA" || c.estado === "EN_TRIAJE").sort((a, b) => a.hora.localeCompare(b.hora));
+    const sel = state.citas.find((c) => c.id === state.triajeSel && c.estado === "EN_TRIAJE");
+    return `
+      <div class="page-head"><div><h2>Triaje y signos vitales</h2><p>Enfermería · cola de espera de hoy</p></div></div>
+      <div class="grid g-hce">
+        <div class="box">
+          <h3>Cola de espera (${cola.length})</h3>
+          ${cola.length ? `<div class="stack">${cola.map((c) => { const p = paciente(c.dni);
+            return `<div class="box" style="padding:10px;${c.id === state.triajeSel ? "background:var(--fill)" : ""}">
+              <div class="spread"><b>${c.hora}</b>${estadoTag(c.estado)}</div>
+              <div>${esc(p.nombre)}</div><div class="small muted">${esc(medico(c.medicoId).nombre)}</div>
+              <div class="row" style="margin-top:6px">
+                ${c.estado === "PROGRAMADA"
+                  ? `<button class="btn sm primary" data-action="llego" data-id="${c.id}">Llegó · tomar triaje</button><button class="btn sm" data-action="noshow" data-id="${c.id}">No asistió</button>`
+                  : `<button class="btn sm" data-action="tri-sel" data-id="${c.id}">Abrir</button>`}
+              </div></div>`; }).join("")}</div>` : `<p class="muted">Nadie en cola. Agenda una cita desde Admisión.</p>`}
+        </div>
+        <div class="stack">
+          ${sel ? formTriaje(sel) : `<div class="ph" style="min-height:260px"><span>[ selecciona un paciente de la cola ]</span></div>`}
+          ${note("Paso 5 del flujo", "Los signos vitales se guardan en la tabla triajes, vinculados a la cita. El médico los ve al abrir la HCE. Los valores fuera de rango se marcan con [!].")}
+        </div>
+      </div>`;
+  },
+
+  medico() {
+    const m = medico(state.medicoSel);
+    const agenda = state.citas.filter((c) => c.medicoId === m.id).sort((a, b) => a.hora.localeCompare(b.hora));
+    return `
+      <div class="page-head"><div><h2>Agenda del día</h2><p>${esc(m.nombre)} · ${m.esp} · ${m.cons}</p></div>
+        <label class="f" style="min-width:240px"><span>Ver como médico</span><select data-action="medico-sel">${MEDICOS.map((x) => `<option value="${x.id}" ${x.id === m.id ? "selected" : ""}>${esc(x.nombre)}</option>`).join("")}</select></label></div>
+      <div class="box">
+        ${agenda.length ? `<table>
+          <tr><th>Hora</th><th>Paciente</th><th>Convenio</th><th>Triaje</th><th>Estado</th><th></th></tr>
+          ${agenda.map((c) => { const p = paciente(c.dni); return `<tr>
+            <td><b>${c.hora}</b></td><td>${esc(p.nombre)}${p.alergias.length ? ` <span class="tag dark">! alergia</span>` : ""}</td>
+            <td>${CONVENIOS[p.convenio].nombre}</td><td>${c.triaje ? `PA ${c.triaje.pa}` : `<span class="muted">pendiente</span>`}</td>
+            <td>${estadoTag(c.estado)}</td>
+            <td>${c.estado === "EN_ESPERA" || c.estado === "EN_CONSULTA" ? `<button class="btn sm primary" data-action="abrir-hce" data-id="${c.id}">Atender</button>`
+                 : c.estado === "ATENDIDA" ? `<button class="btn sm" data-action="abrir-hce" data-id="${c.id}">Ver HCE</button>` : ""}</td></tr>`; }).join("")}
+        </table>` : `<p class="muted">Sin citas para este médico hoy.</p>`}
+      </div>
+      <div class="box" style="border:0;background:none;padding:0">${note("Paso 6 del flujo", "Al pulsar Atender se abre la HCE unificada. Meta: que cargue en menos de 2 s con 8 000 historias (RNF-001).")}</div>`;
+  },
+
+  hce() {
+    const c = state.citas.find((x) => x.id === state.hce.citaId); const p = paciente(c.dni); const h = state.hce;
+    const lectura = c.estado === "ATENDIDA";
+    const t = c.triaje;
+    return `
+      <div class="page-head"><div><h2>Historia clínica · ${esc(p.nombre)}</h2><p>DNI ${p.dni} · ${p.edad} años · ${p.sexo} · ${CONVENIOS[p.convenio].nombre} · cita ${c.hora}</p></div>
+        <button class="btn sm" data-action="volver-agenda">← Agenda</button></div>
+      ${p.alergias.length ? `<div class="alert">! ALERGIAS: ${p.alergias.map(esc).join(" · ").toUpperCase()}</div>` : `<div class="warn small">Sin alergias registradas</div>`}
+      <div class="grid g-hce" style="margin-top:14px">
+        <div class="stack">
+          <div class="box"><h3>Triaje de hoy</h3>
+            ${t ? `<table>${[["PA", u(t.pa, "mmHg")], ["FC", u(t.fc, "lpm")], ["FR", u(t.fr, "rpm")], ["T°", u(t.temp, "°C")], ["SatO₂", u(t.sat, "%")], ["Peso / talla", `${u(t.peso, "kg")} / ${u(t.talla, "cm")}`], ["IMC", imc(t)]]
+              .map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join("")}</table>` : `<p class="muted">Sin triaje</p>`}</div>
+          <div class="box"><h3>Antecedentes</h3><p>${esc(p.antecedentes)}</p></div>
+          <div class="box"><h3>Atenciones previas</h3>
+            ${p.historial.length ? `<div class="timeline">${p.historial.map((x) => `<div class="it"><b>${x.fecha}</b> · ${esc(x.medico)}<div>${esc(x.dx)}</div><div class="small muted">${esc(x.nota)}</div></div>`).join("")}</div>` : `<p class="muted">Primera atención</p>`}</div>
+        </div>
+        <div class="stack">
+          ${lectura ? `<div class="box"><h3>Consulta cerrada</h3><p>Diagnóstico: <b>${esc(c.dx || "")}</b></p><p class="small muted">Firmada digitalmente. Solo lectura (traza en bitacora_auditoria).</p></div>` : `
+          <div class="box stack">
+            <h3>Consulta actual</h3>
+            <label class="f"><span>Motivo de consulta / anamnesis</span><textarea id="h-motivo">${esc(h.motivo)}</textarea></label>
+            <label class="f"><span>Diagnóstico CIE-10 (escribe para buscar)</span>
+              <input type="text" id="h-dx" list="cie10" value="${esc(h.dx)}" placeholder="ej. I10 o hipertensión">
+              <datalist id="cie10">${CIE10.map(([k, v]) => `<option value="${k} · ${v}">`).join("")}</datalist></label>
+          </div>
+          <div class="box stack">
+            <div class="spread"><h3>Receta</h3><button class="btn sm" data-action="rx-add">+ medicamento</button></div>
+            ${h.receta.length ? `<table><tr><th>Medicamento</th><th>Indicación</th><th></th></tr>
+              ${h.receta.map((r, i) => `<tr><td><input type="text" data-rx="${i}" data-k="med" value="${esc(r.med)}" placeholder="ej. Losartán 50 mg"></td>
+                <td><input type="text" data-rx="${i}" data-k="ind" value="${esc(r.ind)}" placeholder="1 tab c/24 h × 30 días"></td>
+                <td><button class="btn sm" data-action="rx-del" data-i="${i}" aria-label="Quitar">×</button></td></tr>`).join("")}</table>` : `<p class="muted small">Sin medicamentos</p>`}
+            ${p.alergias.length ? `<p class="small">[!] El sistema advierte si el medicamento coincide con una alergia registrada.</p>` : ""}
+          </div>
+          <div class="box stack">
+            <h3>Órdenes de laboratorio / imágenes</h3>
+            <div class="grid g2">${EXAMENES.map((e) => `<label class="row small"><input type="checkbox" data-ex="${e.cod}" ${h.examenes.includes(e.cod) ? "checked" : ""}> ${e.nombre}</label>`).join("")}</div>
+          </div>
+          <div class="spread">
+            <span class="small muted">La firma registra fecha, hora y usuario</span>
+            <button class="btn primary" data-action="firmar">Firmar y concluir consulta</button>
+          </div>`}
+          ${note("Paso 7 del flujo", "Al firmar, una sola transacción guarda la atención, la receta y las órdenes. Luego las órdenes aparecen en Laboratorio y la atención en Facturación.")}
+        </div>
+      </div>`;
+  },
+
+  laboratorio() {
+    const ord = state.ordenes.slice().sort((a, b) => (a.estado === "PENDIENTE" ? -1 : 1) - (b.estado === "PENDIENTE" ? -1 : 1));
+    const sel = state.ordenes.find((o) => o.id === state.labSel);
+    return `
+      <div class="page-head"><div><h2>Laboratorio e imágenes</h2><p>Órdenes digitales emitidas desde la consulta</p></div></div>
+      <div class="grid g2">
+        <div class="box">
+          <h3>Órdenes</h3>
+          ${ord.length ? `<table><tr><th>#</th><th>Paciente</th><th>Examen</th><th>Estado</th><th></th></tr>
+            ${ord.map((o) => `<tr><td>${o.id}</td><td>${esc(paciente(o.dni).nombre)}</td><td>${examen(o.cod).nombre}</td>
+              <td>${o.estado === "PENDIENTE" ? `<span class="tag">Pendiente</span>` : `<span class="tag dark">Completado</span>`}</td>
+              <td><button class="btn sm ${o.estado === "PENDIENTE" ? "primary" : ""}" data-action="lab-sel" data-id="${o.id}">${o.estado === "PENDIENTE" ? "Cargar" : "Ver"}</button></td></tr>`).join("")}
+          </table>` : `<p class="muted">Sin órdenes</p>`}
+        </div>
+        <div class="stack">
+          ${sel ? `<div class="box stack">
+            <h3>Orden #${sel.id} · ${examen(sel.cod).nombre}</h3>
+            <p>${esc(paciente(sel.dni).nombre)} · DNI ${sel.dni}</p>
+            ${sel.estado === "PENDIENTE" ? `
+              <label class="f"><span>Resultado / informe</span><textarea id="lab-res" placeholder="Valores, observaciones..."></textarea></label>
+              <div class="ph" style="min-height:70px"><span>[ arrastrar PDF o imagen DICOM ]</span></div>
+              <button class="btn primary" data-action="lab-guardar">Validar y publicar en la HCE</button>`
+            : `<div class="box" style="background:var(--fill)">${esc(sel.resultado)}</div><p class="small muted">Publicado en la historia clínica</p>`}
+          </div>` : `<div class="ph" style="min-height:220px"><span>[ selecciona una orden ]</span></div>`}
+          ${note("M3 · Sprint 2", "El objetivo es bajar la entrega de resultados de 48 h a lo inmediato: al validar, el resultado entra solo al expediente del paciente.")}
+        </div>
+      </div>`;
+  },
+
+  facturacion() {
+    const rows = state.facturas.map((f) => ({ f, l: liquidar(f), p: paciente(f.dni) }));
+    const porConv = {};
+    rows.forEach(({ l }) => { const k = l.conv.nombre; porConv[k] = (porConv[k] || 0) + l.cubre; });
+    const tot = rows.reduce((a, { l }) => ({ total: a.total + l.total, cubre: a.cubre + l.cubre, copago: a.copago + l.copago }), { total: 0, cubre: 0, copago: 0 });
+    return `
+      <div class="page-head"><div><h2>Facturación y convenios</h2><p>Liquidación automática por tarifario de convenio</p></div></div>
+      <div class="grid g3">
+        <div class="box kpi"><h3>Total facturado</h3><div class="val">${soles(tot.total)}</div></div>
+        <div class="box kpi"><h3>Por cobrar a aseguradoras</h3><div class="val">${soles(tot.cubre)}</div></div>
+        <div class="box kpi"><h3>Copagos en caja</h3><div class="val">${soles(tot.copago)}</div></div>
+      </div>
+      <div class="box">
+        <h3>Atenciones por liquidar</h3>
+        ${rows.length ? `<table><tr><th>#</th><th>Paciente</th><th>Convenio</th><th>Detalle</th><th class="num">Total</th><th class="num">Aseguradora</th><th class="num">Copago</th><th>Estado</th><th></th></tr>
+          ${rows.map(({ f, l, p }) => `<tr><td>${f.id}</td><td>${esc(p.nombre)}</td><td>${l.conv.nombre}</td>
+            <td class="small">${f.items.map((i) => esc(i[0])).join("<br>")}</td>
+            <td class="num">${soles(l.total)}</td><td class="num">${soles(l.cubre)}</td><td class="num">${soles(l.copago)}</td>
+            <td>${f.estado === "PENDIENTE" ? `<span class="tag">Pendiente</span>` : f.estado === "ENVIADA" ? `<span class="tag dark">Enviada</span>` : f.estado === "GLOSADA" ? `<span class="tag dash">Glosada</span>` : `<span class="tag dark">Cobrada</span>`}</td>
+            <td class="row">${f.estado === "PENDIENTE" ? (l.conv.cobertura > 0 ? `<button class="btn sm primary" data-action="fac-enviar" data-id="${f.id}">Enviar</button>` : `<button class="btn sm primary" data-action="fac-cobrar" data-id="${f.id}">Cobrar</button>`) : ""}
+              ${f.estado === "ENVIADA" ? `<button class="btn sm" data-action="fac-glosa" data-id="${f.id}">Registrar glosa</button>` : ""}</td></tr>`).join("")}
+        </table>` : `<p class="muted">Sin atenciones</p>`}
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="box"><h3>Por cobrar por convenio</h3>
+          ${Object.keys(porConv).length ? Object.entries(porConv).map(([k, v]) => `<div class="spread small" style="border-bottom:1px dashed var(--soft);padding:4px 0"><span>${k}</span><b>${soles(v)}</b></div>`).join("") : `<p class="muted">—</p>`}</div>
+        ${note("M4 · Sprint 2", "Cada atención firmada genera una línea aquí con el tarifario del convenio (Particular, 5 EPS, SOAT). Las glosas quedan registradas para reducir la conciliación manual.")}
+      </div>`;
+  },
+
+  reportes() {
+    const total = state.citas.length;
+    const atendidas = state.citas.filter((c) => c.estado === "ATENDIDA").length;
+    const noshow = state.citas.filter((c) => c.estado === "NO_SHOW").length;
+    const slotsTot = MEDICOS.length * HORAS.length;
+    const ocup = state.citas.filter((c) => c.estado !== "NO_SHOW").length;
+    const ingresos = state.facturas.reduce((s, f) => s + liquidar(f).total, 0);
+    const porEsp = {};
+    MEDICOS.forEach((m) => { porEsp[m.esp] = porEsp[m.esp] || { usados: 0, cap: 0 }; porEsp[m.esp].cap += HORAS.length; });
+    state.citas.filter((c) => c.estado !== "NO_SHOW").forEach((c) => porEsp[medico(c.medicoId).esp].usados++);
+    return `
+      <div class="page-head"><div><h2>Dashboard gerencial</h2><p>Indicadores del día · se recalculan con lo que hagas en el prototipo</p></div>
+        <select style="width:auto"><option>Hoy</option><option>Últimos 7 días</option><option>Mes actual</option></select></div>
+      <div class="grid g4">
+        <div class="box kpi"><h3>Citas</h3><div class="val">${total}</div><div class="small muted">${atendidas} atendidas</div></div>
+        <div class="box kpi"><h3>Ocupación</h3><div class="val">${Math.round((ocup / slotsTot) * 100)} %</div><div class="small muted">${ocup} de ${slotsTot} turnos</div></div>
+        <div class="box kpi"><h3>No-show</h3><div class="val">${total ? Math.round((noshow / total) * 100) : 0} %</div><div class="small muted">línea base 18 % · meta &lt; 10 %</div></div>
+        <div class="box kpi"><h3>Ingresos</h3><div class="val">${soles(ingresos)}</div><div class="small muted">facturado hoy</div></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="box"><h3>Ocupación por especialidad</h3>
+          ${Object.entries(porEsp).map(([k, v]) => { const pc = Math.round((v.usados / v.cap) * 100);
+            return `<div class="bar-row"><span>${k}</span><div class="bar"><i style="width:${pc}%"></i></div><span class="num">${pc} %</span></div>`; }).join("")}
+        </div>
+        <div class="box"><h3>Tiempo de espera promedio</h3><div class="ph" style="min-height:150px"><span>[ gráfico de línea por hora ]</span></div></div>
+      </div>
+      <div class="grid g2" style="margin-top:14px">
+        <div class="box"><h3>Bitácora de auditoría (sesión)</h3>
+          ${state.bitacora.length ? `<table><tr><th>Hora</th><th>Rol</th><th>Acción</th></tr>${state.bitacora.slice(0, 8).map((b) => `<tr><td>${b.t}</td><td>${esc(b.rol)}</td><td>${esc(b.acc)}</td></tr>`).join("")}</table>` : `<p class="muted small">Aún no hay acciones. Agenda, haz triaje o firma una consulta.</p>`}</div>
+        ${note("M5 · RF-008", "Gerencia ve métricas agregadas, sin diagnósticos ni datos clínicos de pacientes (RNF-002).")}
+      </div>`;
+  },
+
+  portal() {
+    return `
+      <div class="page-head"><div><h2>Portal del paciente</h2><p>M6 · deseable · Sprint 2</p></div></div>
+      <div class="grid g3">
+        <div class="box stack"><h3>Mis citas</h3>
+          <div class="box" style="padding:8px"><b>Hoy 08:30</b><div class="small">Medicina General · C-01</div><div class="row" style="margin-top:6px"><button class="btn sm">Reprogramar</button><button class="btn sm">Cancelar</button></div></div>
+          <button class="btn primary" data-action="portal-agendar">+ Reservar nueva cita</button></div>
+        <div class="box stack"><h3>Mis resultados</h3>
+          <div class="spread small"><span>Hemograma completo</span><span class="tag dark">Listo</span></div>
+          <div class="spread small"><span>Perfil lipídico</span><span class="tag">En proceso</span></div>
+          <div class="ph" style="min-height:80px"><span>[ visor PDF ]</span></div></div>
+        <div class="box stack"><h3>Teleconsulta</h3>
+          <div class="ph" style="min-height:150px"><span>[ video ]</span></div>
+          <button class="btn" disabled>Unirse (disponible 5 min antes)</button></div>
+      </div>
+      <div class="box" style="border:0;background:none;padding:0">${note("Alcance", "Solo se esboza como referencia. Reutiliza la misma API de agenda (M2) y de resultados (M3).")}</div>`;
+  },
+};
+
+// ---------------- Componentes ----------------
+function fichaPaciente(p) {
+  return `<div class="box" style="background:var(--fill)">
+    <div class="spread"><b>${esc(p.nombre)}</b><span class="tag">${CONVENIOS[p.convenio].nombre}</span></div>
+    <div class="small">DNI ${p.dni} · ${p.edad} años</div>
+    ${p.alergias.length ? `<div class="small" style="margin-top:4px"><b>! Alergias:</b> ${p.alergias.map(esc).join(", ")}</div>` : ""}
+  </div>`;
+}
+function tablaCitas(citas) {
+  const c = citas.slice().sort((a, b) => a.hora.localeCompare(b.hora));
+  return `<table><tr><th>Hora</th><th>Paciente</th><th>Médico</th><th>Estado</th></tr>
+    ${c.map((x) => `<tr><td>${x.hora}</td><td>${esc(paciente(x.dni).nombre)}</td><td class="small">${esc(medico(x.medicoId).nombre)}</td><td>${estadoTag(x.estado)}</td></tr>`).join("")}</table>`;
+}
+function u(v, unidad) { return v === "" || v == null ? "—" : `${esc(v)} ${unidad}`; }
+function imc(t) { const v = t.peso / Math.pow(t.talla / 100, 2); return isFinite(v) ? v.toFixed(1) : "—"; }
+const RANGOS = { fc: [60, 100], fr: [12, 20], temp: [36, 37.5], sat: [95, 100] };
+function fuera(k, v) { const r = RANGOS[k]; return r && v !== "" && (Number(v) < r[0] || Number(v) > r[1]); }
+function formTriaje(c) {
+  const p = paciente(c.dni); const t = c._t || (c._t = { pa: "", fc: "", fr: "", temp: "", sat: "", peso: "", talla: "" });
+  const f = (k, lbl, u, type = "number") => `<label class="f"><span>${lbl} ${fuera(k, t[k]) ? `<span class="flag">[!]</span>` : ""}</span>
+    <input type="${type}" step="any" data-tri="${k}" value="${esc(t[k])}" placeholder="${u}"></label>`;
+  return `<div class="box stack">
+    <div class="spread"><h3>Triaje · ${esc(p.nombre)}</h3><span class="small muted">${p.edad} años · cita ${c.hora}</span></div>
+    ${p.alergias.length ? `<div class="alert">! ALERGIAS: ${p.alergias.map(esc).join(" · ").toUpperCase()}</div>` : ""}
+    <div class="vitals">
+      ${f("pa", "Presión arterial", "120/80", "text")}${f("fc", "Frec. cardiaca", "lpm")}${f("fr", "Frec. respiratoria", "rpm")}${f("temp", "Temperatura", "°C")}
+      ${f("sat", "Saturación O₂", "%")}${f("peso", "Peso", "kg")}${f("talla", "Talla", "cm")}
+      <label class="f"><span>IMC (auto)</span><input type="text" readonly value="${t.peso && t.talla ? imc(t) : ""}"></label>
+    </div>
+    <label class="f"><span>Observaciones</span><textarea placeholder="Motivo referido, dolor (0-10)..."></textarea></label>
+    <div class="spread"><span class="small muted">Rangos de referencia para adultos</span>
+      <button class="btn primary" data-action="tri-guardar" data-id="${c.id}">Guardar y pasar a médico</button></div>
+  </div>`;
+}
+
+// ---------------- Acciones ----------------
+document.addEventListener("click", (e) => {
+  const el = e.target.closest("[data-action]"); if (!el) return;
+  const a = el.dataset.action; const id = Number(el.dataset.id);
+  const ag = state.ag;
+  const ACC = {
+    "pick-rol": () => { state._rolLogin = el.dataset.rol; render(); },
+    login: () => { state.rol = state._rolLogin || "todos"; log("Inicio de sesión"); go(ROLES[state.rol].home); render(); },
+    logout: () => { e.preventDefault(); state.rol = null; go("login"); render(); },
+    buscar: () => { ag.dni = $("#dni").value.trim(); ag.p = paciente(ag.dni) || null; ag.buscado = true; render(); },
+    registrar: () => {
+      const nombre = $("#np-nombre").value.trim(); if (!/^\d{8}$/.test(ag.dni) || !nombre) { toast("Completa el nombre. El DNI debe tener 8 dígitos."); return; }
+      const p = { dni: ag.dni, nombre, edad: Number($("#np-edad").value) || 0, sexo: "-", convenio: $("#np-conv").value, alergias: [], antecedentes: "Paciente nuevo.", historial: [] };
+      state.pacientes.push(p); ag.p = p; ag.paso = 2; log(`Registro de paciente DNI ${p.dni}`); render();
+    },
+    "ag-next": () => { ag.paso++; render(); },
+    "ag-back": () => { ag.paso--; render(); },
+    "ag-reset": () => { state.ag = null; render(); },
+    slot: () => { ag.medicoId = Number(el.dataset.m); ag.hora = el.dataset.h; render(); },
+    confirmar: () => {
+      if (ocupado(ag.medicoId, ag.hora)) { toast("<b>Turno ya ocupado.</b> Elige otro horario."); ag.paso = 2; return; }
+      const c = { id: nextId++, dni: ag.p.dni, medicoId: ag.medicoId, hora: ag.hora, estado: "PROGRAMADA" };
+      state.citas.push(c); log(`Cita #${c.id} agendada ${c.hora}`);
+      state.ag = null;
+      toast(`<b>Cita #${c.id} confirmada</b><br>${esc(paciente(c.dni).nombre)} · ${c.hora} · ${esc(medico(c.medicoId).nombre)}<br><span class="small muted">Recordatorio programado 24 h antes. Siguiente paso: Enfermería → Triaje.</span>`);
+    },
+    llego: () => { const c = state.citas.find((x) => x.id === id); c.estado = "EN_TRIAJE"; state.triajeSel = id; log(`Llegada cita #${id}`); render(); },
+    noshow: () => { const c = state.citas.find((x) => x.id === id); c.estado = "NO_SHOW"; log(`No-show cita #${id}`); render(); },
+    "tri-sel": () => { state.triajeSel = id; render(); },
+    "tri-guardar": () => {
+      const c = state.citas.find((x) => x.id === id); const t = c._t;
+      if (!t.pa || !t.fc || !t.temp) { toast("Registra al menos PA, FC y temperatura."); return; }
+      c.triaje = { ...t }; delete c._t; c.estado = "EN_ESPERA"; state.triajeSel = null; log(`Triaje cita #${id}`);
+      toast(`<b>Triaje guardado</b><br>${esc(paciente(c.dni).nombre)} pasa a la agenda de ${esc(medico(c.medicoId).nombre)}.`);
+    },
+    "abrir-hce": () => {
+      const c = state.citas.find((x) => x.id === id);
+      if (c.estado === "EN_ESPERA") c.estado = "EN_CONSULTA";
+      state.hce = { citaId: id, motivo: "", dx: "", receta: [], examenes: [] }; log(`Apertura HCE DNI ${c.dni}`); go("hce"); render();
+    },
+    "volver-agenda": () => { go("medico"); },
+    "rx-add": () => { state.hce.receta.push({ med: "", ind: "" }); render(); },
+    "rx-del": () => { state.hce.receta.splice(Number(el.dataset.i), 1); render(); },
+    firmar: () => {
+      const h = state.hce; const c = state.citas.find((x) => x.id === h.citaId); const p = paciente(c.dni); const m = medico(c.medicoId);
+      if (!h.dx.trim()) { toast("Ingresa un diagnóstico CIE-10 antes de firmar."); return; }
+      const alerg = h.receta.find((r) => p.alergias.some((al) => r.med.toLowerCase().includes(al.toLowerCase().slice(0, 5))));
+      if (alerg) { toast(`<b>! Alerta de alergia</b><br>"${esc(alerg.med)}" coincide con una alergia registrada. Revisa la receta.`); return; }
+      c.estado = "ATENDIDA"; c.dx = h.dx;
+      p.historial.unshift({ fecha: new Date().toISOString().slice(0, 10), medico: m.nombre, dx: h.dx, nota: h.motivo || "—" });
+      h.examenes.forEach((cod) => state.ordenes.push({ id: nextId++, citaId: c.id, dni: p.dni, cod, estado: "PENDIENTE", resultado: "" }));
+      state.facturas.push({ id: nextId++, citaId: c.id, dni: p.dni, estado: "PENDIENTE",
+        items: [[`Consulta ${m.esp}`, TARIFA_CONSULTA], ...h.examenes.map((cod) => [examen(cod).nombre, examen(cod).precio])] });
+      log(`Consulta firmada cita #${c.id} (${h.dx.split(" ")[0]})`);
+      state.hce = null; go("medico");
+      toast(`<b>Consulta firmada</b><br>${h.examenes.length} orden(es) enviada(s) a Laboratorio · atención enviada a Facturación.`);
+    },
+    "lab-sel": () => { state.labSel = id; render(); },
+    "lab-guardar": () => {
+      const o = state.ordenes.find((x) => x.id === state.labSel); const res = $("#lab-res").value.trim();
+      if (!res) { toast("Escribe el resultado."); return; }
+      o.estado = "COMPLETADO"; o.resultado = res;
+      paciente(o.dni).historial.unshift({ fecha: new Date().toISOString().slice(0, 10), medico: "Laboratorio", dx: examen(o.cod).nombre, nota: res });
+      log(`Resultado orden #${o.id}`); toast("<b>Resultado publicado</b> en la HCE del paciente.");
+    },
+    "fac-enviar": () => { state.facturas.find((f) => f.id === id).estado = "ENVIADA"; log(`Factura #${id} enviada a aseguradora`); render(); },
+    "fac-cobrar": () => { state.facturas.find((f) => f.id === id).estado = "COBRADA"; log(`Factura #${id} cobrada`); render(); },
+    "fac-glosa": () => { state.facturas.find((f) => f.id === id).estado = "GLOSADA"; log(`Glosa en factura #${id}`); render(); },
+    "portal-agendar": () => toast("En el Sprint 2 el paciente reservará con el mismo flujo de 3 pasos de Admisión."),
+  };
+  ACC[a] && ACC[a]();
+});
+
+document.addEventListener("change", (e) => {
+  const el = e.target;
+  if (el.dataset.action === "notas") { state.notas = el.checked; render(); }
+  if (el.dataset.action === "esp") { state.ag.esp = el.value; state.ag.medicoId = null; state.ag.hora = null; render(); }
+  if (el.dataset.action === "medico-sel") { state.medicoSel = Number(el.value); render(); }
+  if (el.dataset.ex) { const ex = state.hce.examenes; const i = ex.indexOf(el.dataset.ex); el.checked ? i < 0 && ex.push(el.dataset.ex) : i >= 0 && ex.splice(i, 1); }
+});
+
+document.addEventListener("input", (e) => {
+  const el = e.target;
+  if (el.id === "dni" && state.ag) state.ag.dni = el.value;
+  if (el.id === "h-motivo") state.hce.motivo = el.value;
+  if (el.id === "h-dx") state.hce.dx = el.value;
+  if (el.dataset.rx) state.hce.receta[Number(el.dataset.rx)][el.dataset.k] = el.value;
+  if (el.dataset.tri) {
+    const c = state.citas.find((x) => x.id === state.triajeSel); c._t[el.dataset.tri] = el.value;
+    // refresca marcas [!] e IMC sin perder el foco
+    const pos = el.selectionStart; const k = el.dataset.tri; render();
+    const n = document.querySelector(`[data-tri="${k}"]`); if (n) { n.focus(); try { n.setSelectionRange(pos, pos); } catch {} }
+  }
+});
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Enter" && e.target.id === "dni") { e.preventDefault(); $('[data-action="buscar"]').click(); }
+});
+
+render();
+</script>
+</body>
+</html>
