@@ -24,7 +24,7 @@ class AdaptadorSimulado:
     """Pasarela SMS/correo simulada: valida el destinatario y deja el mensaje en el log."""
 
     def enviar(self, canal: str, destinatario: str, mensaje: str) -> None:
-        if canal in ("SMS", "WHATSAPP") and not re.fullmatch(r"9\d{8}", destinatario):
+        if canal in ("SMS", "WHATSAPP") and not re.fullmatch(r"9[0-9]{8}", destinatario):
             raise ErrorEnvio(f"El número {destinatario} no es un celular válido para {canal}")
         if canal == "EMAIL" and not re.fullmatch(r"[^@\s]+@[^@\s]+\.[^@\s]+", destinatario):
             raise ErrorEnvio(f"El correo {destinatario} no es válido")

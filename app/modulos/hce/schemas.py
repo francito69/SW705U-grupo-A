@@ -17,8 +17,8 @@ TipoDocumento = Literal["DNI", "CE", "PASAPORTE"]
 TipoDiagnostico = Literal["PRINCIPAL", "SECUNDARIO", "PRESUNTIVO"]
 
 FORMATOS_DOCUMENTO = {
-    "DNI": (r"\d{8}", "El DNI debe tener 8 dígitos"),
-    "CE": (r"\d{9,12}", "El carné de extranjería debe tener entre 9 y 12 dígitos"),
+    "DNI": (r"[0-9]{8}", "El DNI debe tener 8 dígitos"),
+    "CE": (r"[0-9]{9,12}", "El carné de extranjería debe tener entre 9 y 12 dígitos"),
     "PASAPORTE": (r"[A-Z0-9]{6,12}", "El pasaporte debe tener entre 6 y 12 letras o números"),
 }
 
@@ -42,7 +42,7 @@ class _Filiacion(BaseModel):
         if valor is None:
             return valor
         numero = re.sub(r"[\s-]", "", str(valor)).removeprefix("+51")
-        if not re.fullmatch(r"9\d{8}", numero):
+        if not re.fullmatch(r"9[0-9]{8}", numero):
             raise ValueError("El celular debe tener 9 dígitos y empezar con 9")
         return numero
 
