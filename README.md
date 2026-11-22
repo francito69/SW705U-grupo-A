@@ -4,6 +4,7 @@
 ![Curso](<https://img.shields.io/badge/Curso-SW705U%20Taller%20de%20Ingenier%C3%ADa%20de%20Software%20I-green?style=for-the-badge>)
 ![Grupo](<https://img.shields.io/badge/Grupo-Grupo%20A-orange?style=for-the-badge>)
 ![Estado](<https://img.shields.io/badge/Estado-En%20Desarrollo-yellow?style=for-the-badge>)
+[![CI](https://github.com/francito69/SW705U-grupo-A/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/francito69/SW705U-grupo-A/actions/workflows/ci.yml)
 
 Repositorio oficial del **Sistema de Información Clínico-Administrativo (SIRA)** para la sede San Borja de la **Clínica San Rafael S.A.C.**, desarrollado en la **Universidad Nacional de Ingeniería (UNI)** para la asignatura **SW705U - Taller de Ingeniería de Software I**.
 
@@ -104,3 +105,35 @@ Desarrollar e implementar la plataforma web **SIRA** para centralizar la gestió
 ├── .gitignore
 └── README.md
 ```
+
+### Código del sistema
+
+```text
+.
+├── .github/workflows/ci.yml   # ruff + pytest con cobertura en cada pull request
+├── app/
+│   ├── main.py                # aplicación FastAPI
+│   ├── database.py            # conexión (DATABASE_URL; SQLite local por defecto)
+│   ├── seed.py                # datos ficticios de demostración
+│   ├── core/                  # configuración, hora de Lima y errores
+│   ├── api/v1/                # endpoints REST /api/v1
+│   └── modulos/               # seguridad, auditoria, notificaciones, convenios, hce, agenda
+├── tests/                     # pruebas con pytest
+├── prototipo/                 # prototipo navegable en HTML
+├── pyproject.toml
+├── requirements.txt
+└── requirements-dev.txt
+```
+
+## Ejecución local
+
+```bash
+python -m venv venv
+source venv/bin/activate        # en Windows: venv\Scripts\activate
+pip install -r requirements.txt -r requirements-dev.txt
+python -m app.seed --reiniciar  # crea la base SQLite con datos ficticios
+uvicorn app.main:app --reload   # API en http://127.0.0.1:8000/docs
+pytest -q                       # suite de pruebas
+```
+
+Las cuentas de demostración se listan en `GET /api/v1/auth/demo`. Todos los datos son ficticios.
