@@ -200,6 +200,10 @@ def disponibilidad(
     }
     if not bloques:
         return resultado
+    if fecha > tiempo.hoy() + timedelta(days=HORIZONTE_DIAS):
+        resultado["atiende"] = False
+        resultado["mensaje"] = f"Solo se puede agendar con hasta {HORIZONTE_DIAS} días de anticipación"
+        return resultado
     inicio_dia = datetime.combine(fecha, time.min)
     activas = _activas_en_rango(db, inicio_dia, inicio_dia + timedelta(days=1))
     consultorios = listar_consultorios(db)
