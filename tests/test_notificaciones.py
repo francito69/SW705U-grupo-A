@@ -7,6 +7,8 @@ import pytest
 
 from conftest import bloque
 
+pytestmark = pytest.mark.integration
+
 URL = "/api/v1/notificaciones"
 
 

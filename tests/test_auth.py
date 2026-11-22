@@ -1,8 +1,11 @@
 from datetime import datetime, timedelta, timezone
 
 import jwt
+import pytest
 
 from conftest import CLAVE_PRUEBAS, PASSWORD
+
+pytestmark = pytest.mark.integration
 
 LOGIN = "/api/v1/auth/login"
 

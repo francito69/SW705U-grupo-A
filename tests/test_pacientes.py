@@ -1,5 +1,9 @@
 """HU03 - Registro y búsqueda de paciente con validación de convenio."""
 
+import pytest
+
+pytestmark = pytest.mark.integration
+
 URL = "/api/v1/pacientes"
 
 NUEVO = {

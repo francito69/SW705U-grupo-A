@@ -1,3 +1,8 @@
+import pytest
+
+pytestmark = pytest.mark.integration
+
+
 def test_salud_responde_ok(client):
     respuesta = client.get("/salud")
 

@@ -6,6 +6,8 @@ from sqlalchemy.exc import DBAPIError
 
 from conftest import PASSWORD
 
+pytestmark = pytest.mark.integration
+
 MOTIVO = "Atención registrada en el paciente equivocado por error de digitación"
 
 

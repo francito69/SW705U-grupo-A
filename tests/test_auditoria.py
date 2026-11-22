@@ -1,5 +1,9 @@
 """T2 - Consulta de la bitácora de auditoría."""
 
+import pytest
+
+pytestmark = pytest.mark.integration
+
 URL = "/api/v1/auditoria"
 
 
