@@ -237,6 +237,18 @@ def test_copago_estimado_segun_convenio(client, login):
     assert copago(9, RAMOS)["copago"] == 0.0
 
 
+def test_copago_sin_tarifario_vigente_usa_el_precio_particular(client, login):
+    estimado = client.get(
+        f"{URL}/copago-estimado",
+        params={"id_paciente": 11, "id_medico": RAMOS, "fecha": "2025-06-02"},
+        headers=login("admision.rquispe"),
+    ).json()
+
+    assert estimado["convenio"] == "Rímac EPS"
+    assert estimado["tarifario_vigente"] is False
+    assert (estimado["precio"], estimado["porcentaje_cobertura"], estimado["copago"]) == (80.0, 0.0, 80.0)
+
+
 def test_lista_las_citas_de_hoy(client, login):
     citas = client.get(URL, headers=login("admision.rquispe")).json()
 

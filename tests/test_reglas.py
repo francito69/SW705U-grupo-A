@@ -79,6 +79,30 @@ def test_alertas_e_imc_del_triaje():
     assert imc(triaje) == 26.1
 
 
+@pytest.mark.parametrize(
+    ("sistolica", "diastolica", "alerta"),
+    [
+        pytest.param(140, 85, True, id="sistolica-en-el-limite-140"),
+        pytest.param(139, 89, False, id="debajo-de-ambos-limites"),
+        pytest.param(130, 90, True, id="diastolica-en-el-limite-90"),
+    ],
+)
+def test_limites_de_la_alerta_de_presion(sistolica, diastolica, alerta):
+    triaje = Triaje(
+        presion_sistolica=sistolica,
+        presion_diastolica=diastolica,
+        temperatura=36.5,
+        frecuencia_cardiaca=80,
+        saturacion_oxigeno=97,
+        peso=70,
+        talla=1.70,
+    )
+
+    elevada = any(a.startswith("Presión arterial elevada") for a in alertas_triaje(triaje))
+
+    assert elevada is alerta
+
+
 def test_utilidades():
     assert normalizar("  Hipertensión   Arterial ") == "hipertension arterial"
     assert tiempo.edad(date(2000, 12, 31), date(2026, 11, 12)) == 25
