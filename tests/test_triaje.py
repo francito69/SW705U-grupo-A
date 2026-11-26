@@ -1,5 +1,9 @@
 """HU05 - Registro de triaje y signos vitales por enfermería."""
 
+import pytest
+
+pytestmark = pytest.mark.integration
+
 URL = "/api/v1/triajes"
 
 SIGNOS = {

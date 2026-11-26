@@ -2,7 +2,11 @@
 
 from datetime import datetime, timedelta
 
+import pytest
+
 from conftest import bloque, dia_habil, proximo_domingo
+
+pytestmark = pytest.mark.integration
 
 URL = "/api/v1/citas"
 RAMOS, NUNEZ, MENDOZA = 3, 7, 2

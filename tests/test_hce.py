@@ -2,6 +2,10 @@
 
 import time
 
+import pytest
+
+pytestmark = pytest.mark.integration
+
 URL = "/api/v1/pacientes/{}/hce"
 
 

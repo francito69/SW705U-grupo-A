@@ -1,6 +1,10 @@
 """HU06 - Reprogramación y cancelación justificada; llegada e inasistencia."""
 
+import pytest
+
 from conftest import bloque, dia_habil
+
+pytestmark = pytest.mark.integration
 
 URL = "/api/v1/citas"
 

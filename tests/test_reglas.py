@@ -13,6 +13,8 @@ from app.modulos.convenios.service import calcular_copago
 from app.modulos.hce.models import Triaje
 from app.modulos.hce.service import alertas_triaje, coincidencias_alergia, imc
 
+pytestmark = pytest.mark.unit
+
 
 @pytest.mark.parametrize(
     ("precio", "cobertura", "fijo", "esperado"),

@@ -1,5 +1,9 @@
 """HU04 - Registro de atención médica con diagnóstico CIE-10 y prescripción."""
 
+import pytest
+
+pytestmark = pytest.mark.integration
+
 URL = "/api/v1/atenciones"
 
 CONSULTA = {
