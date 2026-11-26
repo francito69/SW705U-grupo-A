@@ -17,12 +17,18 @@ def hoy() -> date:
     return ahora().date()
 
 
-def edad(fecha_nacimiento: date, referencia: date | None = None) -> int:
-    ref = referencia or hoy()
-    años = ref.year - fecha_nacimiento.year
-    if (ref.month, ref.day) < (fecha_nacimiento.month, fecha_nacimiento.day):
+def calcular_edad(fecha_nacimiento: date, referencia: date) -> int:
+    """Años cumplidos en la fecha de referencia; un nacido el 29/02 cumple el 01/03 en años no bisiestos."""
+    if fecha_nacimiento > referencia:
+        raise ValueError("La fecha de nacimiento es posterior a la fecha de referencia")
+    años = referencia.year - fecha_nacimiento.year
+    if (referencia.month, referencia.day) < (fecha_nacimiento.month, fecha_nacimiento.day):
         años -= 1
     return años
+
+
+def edad(fecha_nacimiento: date, referencia: date | None = None) -> int:
+    return calcular_edad(fecha_nacimiento, referencia or hoy())
 
 
 def formato_fecha(valor: datetime | date) -> str:
