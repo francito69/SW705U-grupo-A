@@ -16,22 +16,22 @@ INSERT INTO roles (nombre, descripcion) VALUES
     ('ADMINISTRADOR', 'Gestión de usuarios y roles');
 
 INSERT INTO usuarios (username, password_hash, email, id_rol) VALUES
-    ('admision.rquispe', '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'rquispe@sanrafael.test',  1),
-    ('admision.lflores', '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'lflores@sanrafael.test',  1),
-    ('med.jvaldivia',    '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'jvaldivia@sanrafael.test', 2),
-    ('med.cmendoza',     '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'cmendoza@sanrafael.test',  2),
-    ('med.aramos',       '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'aramos@sanrafael.test',    2),
-    ('med.psoto',        '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'psoto@sanrafael.test',     2),
-    ('med.mmorales',     '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'mmorales@sanrafael.test',  2),
-    ('med.ltorres',      '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'ltorres@sanrafael.test',   2),
-    ('enf.rpaz',         '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'rpaz@sanrafael.test',      3),
-    ('enf.mcastro',      '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'mcastro@sanrafael.test',   3),
-    ('lab.jhuaman',      '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'jhuaman@sanrafael.test',   4),
-    ('lab.dchavez',      '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'dchavez@sanrafael.test',   4),
-    ('caja.evargas',     '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'evargas@sanrafael.test',   5),
-    ('caja.ksilva',      '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'ksilva@sanrafael.test',    5),
-    ('ger.rmedina',      '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'rmedina@sanrafael.test',   6),
-    ('admin.sira',       '$2b$12$Q7vXk1Lr9pTz3mWc5yHn8eFzJ0aB2cD4eG6hI8jK0lM2nO4pQ6rS', 'admin@sanrafael.test',     7);
+    ('admision.rquispe', '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'rquispe@sanrafael.test',  1),
+    ('admision.lflores', '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'lflores@sanrafael.test',  1),
+    ('med.jvaldivia',    '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'jvaldivia@sanrafael.test', 2),
+    ('med.cmendoza',     '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'cmendoza@sanrafael.test',  2),
+    ('med.aramos',       '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'aramos@sanrafael.test',    2),
+    ('med.psoto',        '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'psoto@sanrafael.test',     2),
+    ('med.mmorales',     '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'mmorales@sanrafael.test',  2),
+    ('med.ltorres',      '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'ltorres@sanrafael.test',   2),
+    ('enf.rpaz',         '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'rpaz@sanrafael.test',      3),
+    ('enf.mcastro',      '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'mcastro@sanrafael.test',   3),
+    ('lab.jhuaman',      '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'jhuaman@sanrafael.test',   4),
+    ('lab.dchavez',      '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'dchavez@sanrafael.test',   4),
+    ('caja.evargas',     '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'evargas@sanrafael.test',   5),
+    ('caja.ksilva',      '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'ksilva@sanrafael.test',    5),
+    ('ger.rmedina',      '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'rmedina@sanrafael.test',   6),
+    ('admin.sira',       '$2b$12$EyzsSVPxLw0BHgM/beNoye7X7N8.Yb3ZpKFki8AZf4zGAHR3EH70a', 'admin@sanrafael.test',     7);
 
 -- M4 - Convenios
 INSERT INTO convenios (codigo_convenio, nombre_institucion, tipo_convenio, contacto_operativo) VALUES

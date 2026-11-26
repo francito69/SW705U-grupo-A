@@ -5,8 +5,8 @@ def test_salud_responde_ok(client):
     assert respuesta.json() == {"estado": "ok"}
 
 
-def test_lista_los_convenios_ficticios(client):
-    respuesta = client.get("/convenios")
+def test_lista_los_convenios_ficticios(client, login):
+    respuesta = client.get("/api/v1/convenios", headers=login("admision.rquispe"))
 
     assert respuesta.status_code == 200
     codigos = [convenio["codigo_convenio"] for convenio in respuesta.json()]
