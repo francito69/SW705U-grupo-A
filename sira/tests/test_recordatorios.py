@@ -4,9 +4,9 @@ from datetime import datetime
 
 import pytest
 
-from app.citas import CitaRecordatorio
-from app.notificaciones import NotificadorSimulado
-from app.recordatorios import citas_a_recordar, enviar_recordatorios
+from backend.citas import CitaRecordatorio
+from backend.notificaciones import NotificadorSimulado
+from backend.recordatorios import citas_a_recordar, enviar_recordatorios
 
 AHORA = datetime(2026, 11, 26, 10, 0)
 

@@ -74,7 +74,9 @@ Desarrollar e implementar la plataforma web **SIRA** para centralizar la gestió
 │   ├── entregable-4/
 │   ├── entregable-5/
 │   ├── entregable-7/
-│   └── prototipo/             # prototipo navegable inicial en HTML
+│   ├── prototipo/             # prototipo navegable inicial en HTML
+│   └── informe_mitad_sprint2.md
+├── metricas/                  # burndown de corte y tiempo de ciclo del sprint (CSV + scripts)
 ├── .gitignore
 └── README.md
 ```

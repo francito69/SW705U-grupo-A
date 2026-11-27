@@ -2,8 +2,8 @@
 
 from datetime import datetime
 
-from app.citas import HORAS_ANTES_RECORDATORIO, CitaRecordatorio
-from app.notificaciones import Notificador
+from backend.citas import HORAS_ANTES_RECORDATORIO, CitaRecordatorio
+from backend.notificaciones import Notificador
 
 VENTANA_MINUTOS = HORAS_ANTES_RECORDATORIO * 60
 
