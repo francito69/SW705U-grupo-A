@@ -3,6 +3,7 @@
 from dataclasses import dataclass
 
 ESTADOS_VALIDOS = ("reservada", "cancelada", "atendida")
+HORAS_ANTES_RECORDATORIO = 24
 CANAL_DEFECTO = "SMS"
 
 
@@ -14,4 +15,5 @@ class CitaRecordatorio:
     dni_paciente: str
     minutos_restantes: int
     estado: str = "reservada"
+    recordada: bool = False
     canal: str = CANAL_DEFECTO
