@@ -58,82 +58,47 @@ Desarrollar e implementar la plataforma web **SIRA** para centralizar la gestió
 
 ```text
 .
-├── database/
-│   ├── 01-esquema.sql
-│   ├── 02-datos-prueba.sql
-│   └── 03-verificacion.sql
+├── .github/workflows/ci.yml   # ruff + pytest con cobertura en cada pull request
+├── sira/
+│   ├── backend/               # API REST FastAPI (seguridad, auditoria, hce, agenda, convenios, notificaciones)
+│   ├── frontend/              # aplicación web React + TypeScript + Vite
+│   ├── database/              # scripts SQL (01-esquema, 02-datos-prueba, 03-verificacion)
+│   ├── tests/                 # pruebas con pytest
+│   ├── pyproject.toml
+│   ├── pytest.ini
+│   ├── requirements.txt
+│   └── requirements-dev.txt
 ├── docs/
 │   ├── entregable-1/
-│   │   ├── 01-acta-constitucion.md
-│   │   ├── 02-documento-vision.md
-│   │   ├── 03-especificacion-requerimientos-ERS.md
-│   │   ├── 04-modelos-uml/
-│   │   │   ├── 04-modelosUML.md
-│   │   │   ├── Actividades.png
-│   │   │   ├── CasosDeUso.png
-│   │   │   └── Clases.png
-│   │   ├── 05-arquitectura-SAD/
-│   │   │   └── 05-arquitectura-SAD.md
-│   │   ├── 06-modelo-base-datos/
-│   │   │   └── 06-modelo-base-datos.md
-│   │   ├── 07-prototipo-ux-ui/
-│   │   │   └── 07-prototipos-ux-ui.md
-│   │   ├── 08-plan-release-sprint-backlog.md
-│   │   └── Entregable1_SW705_GrupoA.docx
 │   ├── entregable-2/
-│   │   ├── 01-estandares-codigo-git.md
-│   │   ├── 03-metricas-dora.md
-│   │   ├── 04-manual-usuario.md
-│   │   └── 05-informe-final-cierre.md
 │   ├── entregable-4/
-│   │   ├── Guia_Practica_Semana6_SW705.pdf
-│   │   ├── diagrama-componentes.png
-│   │   ├── diagrama-componentes.pdf
-│   │   ├── modelo-entidad-relacion.png
-│   │   ├── modelo-entidad-relacion.pdf
-│   │   ├── figuras/
-│   │   └── imagenes-overleaf/
-│   └── entregable-5/
-│       ├── Entregable5_SW705_GrupoA.docx
-│       ├── diagramas/
-│       │   ├── plan-release.mmd
-│       │   ├── plan-release.png
-│       │   └── tablero-sprint1.png
-│       └── fuente/
-│           ├── generar_entregable5.js
-│           └── logo.png
+│   ├── entregable-5/
+│   ├── entregable-7/
+│   └── prototipo/             # prototipo navegable inicial en HTML
 ├── .gitignore
 └── README.md
 ```
 
-### Código del sistema
-
-```text
-.
-├── .github/workflows/ci.yml   # ruff + pytest con cobertura en cada pull request
-├── app/
-│   ├── main.py                # aplicación FastAPI
-│   ├── database.py            # conexión (DATABASE_URL; SQLite local por defecto)
-│   ├── seed.py                # datos ficticios de demostración
-│   ├── core/                  # configuración, hora de Lima y errores
-│   ├── api/v1/                # endpoints REST /api/v1
-│   └── modulos/               # seguridad, auditoria, notificaciones, convenios, hce, agenda
-├── tests/                     # pruebas con pytest
-├── prototipo/                 # prototipo navegable en HTML
-├── pyproject.toml
-├── requirements.txt
-└── requirements-dev.txt
-```
-
 ## Ejecución local
 
+### Backend y pruebas
+
 ```bash
+cd sira
 python -m venv venv
 source venv/bin/activate        # en Windows: venv\Scripts\activate
 pip install -r requirements.txt -r requirements-dev.txt
-python -m app.seed --reiniciar  # crea la base SQLite con datos ficticios
-uvicorn app.main:app --reload   # API en http://127.0.0.1:8000/docs
-pytest -q                       # suite de pruebas
+python -m backend.seed --reiniciar  # crea la base SQLite con datos ficticios
+uvicorn backend.main:app --reload   # API en http://127.0.0.1:8000/docs
+pytest -q                           # suite de pruebas
+```
+
+### Frontend
+
+```bash
+cd sira/frontend
+npm install
+npm run dev
 ```
 
 Las cuentas de demostración se listan en `GET /api/v1/auth/demo`. Todos los datos son ficticios.
